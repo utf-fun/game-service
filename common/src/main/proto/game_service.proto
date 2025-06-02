@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package game_server;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+service GameService {
+
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Heartbeat(stream HeartbeatRequest) returns (stream HeartbeatResponse);
+  rpc UnRegister(UnregisterRequest) returns (UnregisterResponse);
+
+}
+
+message RegisterRequest {
+  string container_id = 1;
+}
+
+message RegisterResponse {
+  string id = 1;
+}
+
+message UnregisterRequest {
+  string container_id = 1;
+}
+
+message UnregisterResponse {
+  string id = 1;
+}
+
+message Game {
+  string id = 1;
+  string playlist = 2;
+  bool active = 3;
+}
+
+message HeartbeatRequest {
+  string server_id = 1;
+  float capacity = 2;
+  repeated Game games = 3;
+}
+
+message HeartbeatResponse {
+  bool success = 1;
+}
+
