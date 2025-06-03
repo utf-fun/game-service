@@ -9,4 +9,12 @@ public class Heartbeat {
         this.timestamp = timestamp;
         this.capacity = capacity;
     }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public float getCapacity() {
+        return capacity;
+    }
 }

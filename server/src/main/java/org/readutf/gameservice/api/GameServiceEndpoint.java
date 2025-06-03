@@ -7,12 +7,16 @@ import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 import org.readutf.gameservice.common.Game;
 import org.readutf.gameservice.server.ServerException;
 import org.readutf.gameservice.server.ServerManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GameServiceEndpoint extends GameServiceGrpc.GameServiceImplBase {
 
+    private static final Logger log = LoggerFactory.getLogger(GameServiceEndpoint.class);
     private final ServerManager serverManager;
 
     public GameServiceEndpoint(ServerManager serverManager) {
@@ -36,8 +40,10 @@ public class GameServiceEndpoint extends GameServiceGrpc.GameServiceImplBase {
 
     @Override
     public StreamObserver<GameServiceOuterClass.HeartbeatRequest> heartbeat(StreamObserver<GameServiceOuterClass.HeartbeatResponse> responseObserver) {
-
         return new StreamObserver<>() {
+
+            private @Nullable UUID serverId = null;
+
             @Override
             public void onNext(GameServiceOuterClass.HeartbeatRequest value) {
                 List<GameServiceOuterClass.Game> protoGames = value.getGamesList();
@@ -53,7 +59,7 @@ public class GameServiceEndpoint extends GameServiceGrpc.GameServiceImplBase {
                 }
 
                 try {
-                    UUID serverId = UUID.fromString(value.getServerId());
+                    this.serverId = UUID.fromString(value.getServerId());
                     serverManager.handleHeartbeat(serverId, value.getCapacity(), games);
                 } catch (ServerException | IllegalArgumentException e) {
                     responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asException());
@@ -62,18 +68,15 @@ public class GameServiceEndpoint extends GameServiceGrpc.GameServiceImplBase {
 
             @Override
             public void onError(Throwable t) {
-
+                if(serverId != null) {
+                    serverManager.unregisterServer(serverId);
+                }
             }
 
             @Override
             public void onCompleted() {
-
+                log.info("Heartbeat stream completed");
             }
         };
-    }
-
-    @Override
-    public void unRegister(GameServiceOuterClass.UnregisterRequest request, StreamObserver<GameServiceOuterClass.UnregisterResponse> responseObserver) {
-        super.unRegister(request, responseObserver);
     }
 }

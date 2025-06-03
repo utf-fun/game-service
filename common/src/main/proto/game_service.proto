@@ -9,7 +9,7 @@ service GameService {
 
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc Heartbeat(stream HeartbeatRequest) returns (stream HeartbeatResponse);
-  rpc UnRegister(UnregisterRequest) returns (UnregisterResponse);
+  rpc SubscribeToGameRequests(SubscribeRequest) returns (stream GameRequest);
 
 }
 
@@ -19,10 +19,6 @@ message RegisterRequest {
 
 message RegisterResponse {
   string id = 1;
-}
-
-message UnregisterRequest {
-  string container_id = 1;
 }
 
 message UnregisterResponse {
@@ -35,10 +31,20 @@ message Game {
   bool active = 3;
 }
 
+message GameRequest {
+  string request_id = 1;
+  string playlist = 2;
+  repeated string players = 3;
+}
+
 message HeartbeatRequest {
   string server_id = 1;
   float capacity = 2;
   repeated Game games = 3;
+}
+
+message SubscribeRequest {
+  string server_id = 1;
 }
 
 message HeartbeatResponse {
