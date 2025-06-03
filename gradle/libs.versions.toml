@@ -1,6 +1,12 @@
 [versions]
 slf4j = "2.0.13"
 grpc = "1.73.0"
+lombok = "1.18.28"
+tinylog = "2.7.0"
+junit-bom = "5.10.0"
+protobuf = "3.25.5"
+kubernetes = "24.0.0"
+docker-java = "3.5.1"
 
 [libraries]
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
@@ -9,6 +15,23 @@ grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
 grpc-services = { module = "io.grpc:grpc-services", version.ref = "grpc" }
 grpc-netty-shaded = { module = "io.grpc:grpc-netty-shaded", version.ref = "grpc" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+
+# TinyLog dependencies
+tinylog-api = { module = "org.tinylog:tinylog-api", version.ref = "tinylog" }
+tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
+slf4j-tinylog = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
+
+# JUnit dependencies
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit-bom" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+# Other dependencies
+javax-annotation-api = { module = "javax.annotation:javax.annotation-api", version = "1.3.1" }
+kubernetes-client = { module = "io.kubernetes:client-java", version.ref = "kubernetes" }
+protobuf-compiler = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
+docker-zerodep = { module = "com.github.docker-java:docker-java-transport-zerodep", version.ref = "docker-java" }
 
 [bundles]
 grpc = [
@@ -16,4 +39,10 @@ grpc = [
     "grpc-protobuf",
     "grpc-services",
     "grpc-netty-shaded",
+]
+
+tinylog = [
+    "tinylog-api",
+    "tinylog-impl",
+    "slf4j-tinylog",
 ]

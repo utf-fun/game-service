@@ -11,6 +11,8 @@ public class ServiceStarter {
 
     public static void main(String[] args) throws InterruptedException, IOException {
 
+
+
         var serverManager = new ServerManager();
 
         Server server = Grpc.newServerBuilderForPort(50052, InsecureServerCredentials.create())

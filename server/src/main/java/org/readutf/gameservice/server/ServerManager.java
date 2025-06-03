@@ -7,7 +7,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.readutf.gameservice.common.Game;
 import org.readutf.gameservice.common.Heartbeat;
+import org.readutf.gameservice.common.NetworkSettings;
 import org.readutf.gameservice.common.Server;
+import org.readutf.gameservice.common.exception.ContainerPlatformException;
+import org.readutf.gameservice.container.ContainerPlatform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +18,11 @@ public class ServerManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerManager.class);
 
+    private final ContainerPlatform containerPlatform;
     private final List<Server> servers;
 
-    public ServerManager() {
+    public ServerManager(ContainerPlatform containerPlatform) {
+        this.containerPlatform = containerPlatform;
         this.servers = new ArrayList<>();
     }
 
@@ -55,7 +60,19 @@ public class ServerManager {
             logger.error("Server with ID {} already exists.", containerId);
             throw new ServerException("Server with container ID " + containerId + " already exists.");
         }
-        Server server = new Server(UUID.randomUUID(), containerId, new Heartbeat(System.currentTimeMillis(), 0));
+
+        NetworkSettings networkSettings = containerPlatform.getNetworkSettings(containerId);
+        if(networkSettings == null) {
+            logger.error("Network settings for container ID {} not found.", containerId);
+            throw new ServerException("Network settings for container ID " + containerId + " not found.");
+        }
+
+        Server server = new Server(
+                UUID.randomUUID(),
+                containerId,
+                networkSettings,
+                new Heartbeat(System.currentTimeMillis(), 0),
+                new ArrayList<>());
         servers.add(server);
         return server.getServerId();
     }
@@ -71,7 +88,8 @@ public class ServerManager {
         logger.info("Server with ID {} unregistered successfully.", serverId);
     }
 
-    public void handleHeartbeat(@NotNull UUID uuid, float capacity, @NotNull List<@NotNull Game> games) throws ServerException {
+    public void handleHeartbeat(@NotNull UUID uuid, float capacity, @NotNull List<@NotNull Game> games)
+            throws ServerException {
         logger.debug("Handling heartbeat for server ID: {}", uuid);
         Server serverById = getServerById(uuid);
         if (serverById == null) {

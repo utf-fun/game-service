@@ -17,6 +17,7 @@ dependencies {
 
     api("javax.annotation:javax.annotation-api:1.3.1")
 
+    api(libs.lombok)
     api(libs.jetbrains.annotations)
     compileOnly(libs.slf4j.api)
 
