@@ -1,9 +1,7 @@
 rootProject.name = "game-service"
-include("backend")
-include("server")
-include("common")
-include("common")
-include("server")
-include("client")
-include("api")
-include("gradle")
+include(
+    "modules:common",
+    "modules:api",
+    "modules:server",
+    "modules:client",
+)
