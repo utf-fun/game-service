@@ -5,15 +5,16 @@ import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
 import java.io.IOException;
 import org.readutf.gameservice.api.GameServiceEndpoint;
+import org.readutf.gameservice.container.docker.DockerContainerPlatform;
 import org.readutf.gameservice.server.ServerManager;
 
 public class ServiceStarter {
 
     public static void main(String[] args) throws InterruptedException, IOException {
 
+        var platform = new DockerContainerPlatform();
 
-
-        var serverManager = new ServerManager();
+        var serverManager = new ServerManager(platform);
 
         Server server = Grpc.newServerBuilderForPort(50052, InsecureServerCredentials.create())
                 .addService(new GameServiceEndpoint(serverManager))

@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
 
-    implementation(project(":modules:api"))
+    implementation(project(":modules:common"))
 
     implementation(libs.bundles.grpc)
     implementation(libs.bundles.tinylog)
