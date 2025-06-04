@@ -1,4 +1,4 @@
-package org.readutf.gameservice.common;
+package org.readutf.gameservice.common.container;
 
 import java.util.List;
 

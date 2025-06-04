@@ -6,8 +6,7 @@ plugins {
     id("io.freefair.lombok") version "8.13.1"
 }
 
-group = "org.readutf.game"
-version = "1.0.0"
+
 
 repositories {
     mavenCentral()

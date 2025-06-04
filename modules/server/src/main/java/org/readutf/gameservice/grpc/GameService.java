@@ -1,4 +1,4 @@
-package org.readutf.gameservice.api;
+package org.readutf.gameservice.grpc;
 
 import game_server.GameServiceGrpc;
 import game_server.GameServiceOuterClass;
@@ -14,12 +14,12 @@ import org.readutf.gameservice.server.ServerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GameServiceEndpoint extends GameServiceGrpc.GameServiceImplBase {
+public class GameService extends GameServiceGrpc.GameServiceImplBase {
 
-    private static final Logger log = LoggerFactory.getLogger(GameServiceEndpoint.class);
+    private static final Logger log = LoggerFactory.getLogger(GameService.class);
     private final ServerManager serverManager;
 
-    public GameServiceEndpoint(ServerManager serverManager) {
+    public GameService(ServerManager serverManager) {
         this.serverManager = serverManager;
     }
 

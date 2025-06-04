@@ -2,8 +2,7 @@ plugins {
     id("java")
 }
 
-group = "org.readutf.game"
-version = "1.0.0"
+
 
 repositories {
     mavenCentral()

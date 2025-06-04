@@ -4,16 +4,18 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="delegatedBuild" value="false" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/api" />
-            <option value="$PROJECT_DIR$/backend" />
-            <option value="$PROJECT_DIR$/client" />
-            <option value="$PROJECT_DIR$/common" />
-            <option value="$PROJECT_DIR$/gradle" />
-            <option value="$PROJECT_DIR$/server" />
+            <option value="$PROJECT_DIR$/modules" />
+            <option value="$PROJECT_DIR$/modules/api" />
+            <option value="$PROJECT_DIR$/modules/client" />
+            <option value="$PROJECT_DIR$/modules/common" />
+            <option value="$PROJECT_DIR$/modules/server" />
+            <option value="$PROJECT_DIR$/nodes" />
+            <option value="$PROJECT_DIR$/nodes/test-server" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -1,10 +1,11 @@
 package org.readutf.gameservice.container;
 
 import org.jetbrains.annotations.Nullable;
-import org.readutf.gameservice.common.NetworkSettings;
+import org.readutf.gameservice.common.container.ContainerInfo;
+import org.readutf.gameservice.common.container.NetworkSettings;
 
 public interface ContainerPlatform {
 
-    @Nullable NetworkSettings getNetworkSettings(String containerId);
+    @Nullable ContainerInfo getContainerInfo(String containerId);
 
 }

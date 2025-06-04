@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.readutf.gameservice.common.Game;
 import org.readutf.gameservice.common.Heartbeat;
-import org.readutf.gameservice.common.NetworkSettings;
+import org.readutf.gameservice.common.container.ContainerInfo;
+import org.readutf.gameservice.common.container.NetworkSettings;
 import org.readutf.gameservice.common.Server;
-import org.readutf.gameservice.common.exception.ContainerPlatformException;
 import org.readutf.gameservice.container.ContainerPlatform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class ServerManager {
 
     public Server getServerByContainer(String containerId) {
         for (Server server : servers) {
-            if (server.getContainerId().equals(containerId)) {
+            if (server.getContainerInfo().containerId().equals(containerId)) {
                 return server;
             }
         }
@@ -54,26 +54,26 @@ public class ServerManager {
         return activeServers;
     }
 
-    public UUID registerServer(String containerId) throws ServerException {
-        logger.info("Registering server with container ID: {}", containerId);
-        if (getServerByContainer(containerId) != null) {
-            logger.error("Server with ID {} already exists.", containerId);
-            throw new ServerException("Server with container ID " + containerId + " already exists.");
+    public UUID registerServer(String shortContainerId) throws ServerException {
+        logger.info("Registering server with container ID: {}", shortContainerId);
+        @Nullable ContainerInfo networkSettings = containerPlatform.getContainerInfo(shortContainerId);
+        if(networkSettings == null) {
+            logger.error("Network settings for container ID {} not found.", shortContainerId);
+            throw new ServerException("Network settings for container ID " + shortContainerId + " not found.");
+        }
+        if (getServerByContainer(networkSettings.containerId()) != null) {
+            logger.error("Server with ID {} already exists.", shortContainerId);
+            throw new ServerException("Server with container ID " + shortContainerId + " already exists.");
         }
 
-        NetworkSettings networkSettings = containerPlatform.getNetworkSettings(containerId);
-        if(networkSettings == null) {
-            logger.error("Network settings for container ID {} not found.", containerId);
-            throw new ServerException("Network settings for container ID " + containerId + " not found.");
-        }
 
         Server server = new Server(
                 UUID.randomUUID(),
-                containerId,
                 networkSettings,
                 new Heartbeat(System.currentTimeMillis(), 0),
                 new ArrayList<>());
         servers.add(server);
+
         return server.getServerId();
     }
 

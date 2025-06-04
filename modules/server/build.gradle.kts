@@ -2,8 +2,7 @@ plugins {
     id("java")
 }
 
-group = "org.readutf.game"
-version = "1.0.0"
+
 
 repositories {
     mavenCentral()
@@ -15,7 +14,11 @@ dependencies {
 
     implementation(libs.bundles.grpc)
     implementation(libs.bundles.tinylog)
-    implementation(libs.docker.zerodep)
+    implementation(libs.docker)
+    implementation(libs.docker.transport)
+    implementation(libs.javalin)
+
+
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

@@ -87,8 +87,12 @@ public class GameServiceClient {
         future.cancel(true);
     }
 
-    public static void reconnecting(String uri, ContainerPlatform containerPlatform) {
-        new Thread(new ReconnectingGameService(() -> new GameServiceClient(uri, containerPlatform))).start();
+    public static ReconnectingGameService reconnecting(String uri, ContainerPlatform containerPlatform) {
+        ReconnectingGameService task = new ReconnectingGameService(() -> new GameServiceClient(uri, containerPlatform));
+        Thread thread = new Thread(task);
+        thread.setDaemon(false);
+        thread.start();
+        return task;
     }
 
 }
