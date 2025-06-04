@@ -5,3 +5,6 @@ include(
     "modules:server",
     "modules:client",
 )
+include(
+    "nodes:test-server"
+)

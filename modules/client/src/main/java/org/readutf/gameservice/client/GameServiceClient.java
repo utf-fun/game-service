@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.jetbrains.annotations.Blocking;
 import org.readutf.gameservice.client.exception.GameServiceException;
+import org.readutf.gameservice.client.platform.ContainerPlatform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,16 +27,18 @@ public class GameServiceClient {
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final ManagedChannel channel;
     private final CountDownLatch heartbeatLatch = new CountDownLatch(1);
+    private final ContainerPlatform containerPlatform;
 
-    private GameServiceClient() {
-        this.channel = Grpc.newChannelBuilder("[::1]:50052", InsecureChannelCredentials.create()).build();
+    GameServiceClient(String uri, ContainerPlatform containerPlatform) {
+        this.channel = Grpc.newChannelBuilder(uri, InsecureChannelCredentials.create()).build();
         this.futureStub = GameServiceGrpc.newFutureStub(channel);
         this.asyncStub = GameServiceGrpc.newStub(channel);
+        this.containerPlatform = containerPlatform;
     }
 
     @Blocking
-    private void startBlocking() throws InterruptedException {
-        UUID serverId = register(String.valueOf(System.currentTimeMillis()));
+    boolean startBlocking() throws InterruptedException {
+        UUID serverId = register(containerPlatform.getContainerId());
 
         log.info("GameServiceClient started with serverId: {}", serverId);
 
@@ -44,9 +47,11 @@ public class GameServiceClient {
         log.info("GameServiceClient finished with serverId: {}", serverId);
 
         shutdown();
+
+        return true;
     }
 
-    private void disconnect() {
+    void disconnect() {
         heartbeatLatch.countDown();
     }
 
@@ -73,10 +78,7 @@ public class GameServiceClient {
         var heartbeatSender = asyncStub.heartbeat(new HeartbeatObserver(heartbeatLatch));
 
         ScheduledFuture<?> future = executor.scheduleAtFixedRate(() -> {
-            GameServiceOuterClass.HeartbeatRequest heartbeatRequest = GameServiceOuterClass.HeartbeatRequest.newBuilder()
-                    .setServerId(serverId.toString())
-                    .setCapacity(0)
-                    .build();
+            GameServiceOuterClass.HeartbeatRequest heartbeatRequest = GameServiceOuterClass.HeartbeatRequest.newBuilder().setServerId(serverId.toString()).setCapacity(0).build();
 
             heartbeatSender.onNext(heartbeatRequest);
         }, 0, 1, TimeUnit.SECONDS);
@@ -85,50 +87,8 @@ public class GameServiceClient {
         future.cancel(true);
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        ReconnectingGameService reconnectingGameService = new ReconnectingGameService();
-        Thread thread = new Thread(reconnectingGameService);
-        thread.setDaemon(false);
-        thread.start();
-
-        Thread.sleep(5000);
-
-        reconnectingGameService.shutdown();
-    }
-
-    public static class ReconnectingGameService implements Runnable {
-
-        private GameServiceClient client;
-        private boolean active = true;
-
-        @Override
-        public void run() {
-            while (active) {
-                try {
-                    client = new GameServiceClient();
-                    client.startBlocking();
-                    client = null;
-                } catch (GameServiceException e) {
-                    log.error("Error in GameServiceClient", e);
-                    try {
-                        Thread.sleep(1000); // Retry after 1 second
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        public void shutdown() {
-            active = false;
-            if(client != null) {
-                client.disconnect();
-                log.info("Shut down GameServiceClient");
-            }
-        }
-
+    public static void reconnecting(String uri, ContainerPlatform containerPlatform) {
+        new Thread(new ReconnectingGameService(() -> new GameServiceClient(uri, containerPlatform))).start();
     }
 
 }
