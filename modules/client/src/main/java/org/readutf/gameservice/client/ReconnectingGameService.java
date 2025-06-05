@@ -28,8 +28,11 @@ public class ReconnectingGameService implements Runnable {
                 client.startBlocking();
                 client = null;
             } catch (GameServiceException e) {
-                log.error("Error in GameServiceClient", e);
-                break;
+                log.error("A connection error occurred", e);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) {
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
