@@ -1,4 +1,4 @@
-package org.readutf.gameservice.api;
+package org.readutf.gameservice.api.routes;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
