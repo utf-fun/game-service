@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.docker)
     implementation(libs.docker.transport)
     implementation(libs.javalin)
+    implementation(libs.jackson)
 
 
 

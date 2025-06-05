@@ -9,6 +9,7 @@ kubernetes = "24.0.0"
 docker-java = "3.5.1"
 docker = "3.4.1"
 javalin = "6.6.0"
+jackson = "2.19.0"
 
 [libraries]
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
@@ -21,6 +22,7 @@ lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 docker = { module = "com.github.docker-java:docker-java", version.ref = "docker" }
 docker-transport = { module = "com.github.docker-java:docker-java-transport-zerodep", version.ref = "docker" }
 javalin = { module = "io.javalin:javalin", version.ref = "javalin" }
+jackson = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 
 # TinyLog dependencies
 tinylog-api = { module = "org.tinylog:tinylog-api", version.ref = "tinylog" }
