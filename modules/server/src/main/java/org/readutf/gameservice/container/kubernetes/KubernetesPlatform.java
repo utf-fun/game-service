@@ -16,7 +16,6 @@ import org.readutf.gameservice.container.ContainerPlatform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class KubernetesPlatform implements ContainerPlatform {
     public KubernetesPlatform(
             @NotNull String basePath,
             @NotNull String accessToken
-    ) throws IOException, ApiException {
+    ) {
         this.client = new ClientBuilder()
                 .setBasePath(basePath)
                 .setAuthentication(new AccessTokenAuthentication(accessToken))  // Use proper authentication
