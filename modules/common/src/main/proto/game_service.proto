@@ -25,12 +25,6 @@ message UnregisterResponse {
   string id = 1;
 }
 
-message Game {
-  string id = 1;
-  string playlist = 2;
-  bool active = 3;
-}
-
 message GameRequest {
   string request_id = 1;
   string playlist = 2;
@@ -40,7 +34,6 @@ message GameRequest {
 message HeartbeatRequest {
   string server_id = 1;
   float capacity = 2;
-  repeated Game games = 3;
 }
 
 message SubscribeRequest {

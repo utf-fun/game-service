@@ -1,11 +1,17 @@
 plugins {
     id("java")
+    //shadowjar
+    id("com.gradleup.shadow") version "9.0.0-beta15"
 }
-
-
 
 repositories {
     mavenCentral()
+}
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "org.readutf.gameservice.ServiceStarter"
+    }
 }
 
 dependencies {
@@ -18,6 +24,7 @@ dependencies {
     implementation(libs.docker.transport)
     implementation(libs.javalin)
     implementation(libs.jackson)
+    implementation("io.kubernetes:client-java:24.0.0")
 
 
 

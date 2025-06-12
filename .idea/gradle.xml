@@ -4,7 +4,6 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="delegatedBuild" value="false" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
@@ -15,6 +14,7 @@
             <option value="$PROJECT_DIR$/modules/common" />
             <option value="$PROJECT_DIR$/modules/server" />
             <option value="$PROJECT_DIR$/nodes" />
+            <option value="$PROJECT_DIR$/nodes/plugin" />
             <option value="$PROJECT_DIR$/nodes/test-server" />
           </set>
         </option>

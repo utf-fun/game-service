@@ -12,13 +12,7 @@ public class ExampleNode {
 
     public static void main(String[] args) throws InterruptedException {
 
-        ReconnectingGameService reconnecting = GameServiceClient.reconnecting("orchestrator:50052", new DockerPlatform());
-
-        log.info("Awaiting to shut down...");
-
-        Thread.sleep(5000);
-
-        reconnecting.shutdown();
+        ReconnectingGameService reconnecting = GameServiceClient.reconnecting("orchestrator:50052", new DockerPlatform(), () -> 0.5f);
     }
 
 }

@@ -5,6 +5,7 @@ import game_server.GameServiceOuterClass;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.Nullable;
@@ -46,21 +47,21 @@ public class GameService extends GameServiceGrpc.GameServiceImplBase {
 
             @Override
             public void onNext(GameServiceOuterClass.HeartbeatRequest value) {
-                List<GameServiceOuterClass.Game> protoGames = value.getGamesList();
-
-                List<Game> games = new ArrayList<>();
-                for (GameServiceOuterClass.Game protoGame : protoGames) {
-                    Game game = new Game(
-                            UUID.fromString(protoGame.getId()),
-                            protoGame.getPlaylist(),
-                            protoGame.getActive()
-                    );
-                    games.add(game);
-                }
+//                List<GameServiceOuterClass.Game> protoGames = value.getGamesList();
+//
+//                List<Game> games = new ArrayList<>();
+//                for (GameServiceOuterClass.Game protoGame : protoGames) {
+//                    Game game = new Game(
+//                            UUID.fromString(protoGame.getId()),
+//                            protoGame.getPlaylist(),
+//                            protoGame.getActive()
+//                    );
+//                    games.add(game);
+//                }
 
                 try {
                     this.serverId = UUID.fromString(value.getServerId());
-                    serverManager.handleHeartbeat(serverId, value.getCapacity(), games);
+                    serverManager.handleHeartbeat(serverId, value.getCapacity(), Collections.emptyList());
                 } catch (ServerException | IllegalArgumentException e) {
                     responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asException());
                 }

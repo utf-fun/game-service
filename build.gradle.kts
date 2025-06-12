@@ -1,8 +1,9 @@
 plugins {
     id("java")
+    `maven-publish`
 }
 
-group = "org.readutf.game"
+group = "org.readutf.gameservice"
 version = "1.0.0"
 
 repositories {
@@ -19,5 +20,25 @@ subprojects {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(21))
         }
+        withJavadocJar()
+        withSourcesJar()
     }
+
+    if(name in listOf("client", "common", "api")) {
+        apply(plugin = "maven-publish")
+
+        publishing {
+            publications {
+                create<MavenPublication>("maven") {
+                    groupId = project.group as String
+                    artifactId = project.name
+                    version = project.version as String
+
+                    from(components["java"])
+                }
+            }
+        }
+
+    }
+
 }

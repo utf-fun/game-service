@@ -5,6 +5,7 @@ import game_server.GameServiceOuterClass;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
+
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -13,7 +14,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.NotNull;
+import org.readutf.gameservice.client.capacity.CapacitySupplier;
 import org.readutf.gameservice.client.exception.GameServiceException;
 import org.readutf.gameservice.client.platform.ContainerPlatform;
 import org.slf4j.Logger;
@@ -22,18 +26,21 @@ import org.slf4j.LoggerFactory;
 public class GameServiceClient {
 
     private static final Logger log = LoggerFactory.getLogger(GameServiceClient.class);
-    private final GameServiceGrpc.GameServiceFutureStub futureStub;
-    private final GameServiceGrpc.GameServiceStub asyncStub;
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private final ManagedChannel channel;
-    private final CountDownLatch heartbeatLatch = new CountDownLatch(1);
-    private final ContainerPlatform containerPlatform;
 
-    GameServiceClient(String uri, ContainerPlatform containerPlatform) {
+    private final @NotNull GameServiceGrpc.GameServiceFutureStub futureStub;
+    private final @NotNull GameServiceGrpc.GameServiceStub asyncStub;
+    private final @NotNull ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final @NotNull ManagedChannel channel;
+    private final @NotNull CountDownLatch heartbeatLatch = new CountDownLatch(1);
+    private final @NotNull ContainerPlatform containerPlatform;
+    private final @NotNull CapacitySupplier capacitySupplier;
+
+    GameServiceClient(@NotNull String uri, @NotNull ContainerPlatform containerPlatform, @NotNull CapacitySupplier capacitySupplier) {
         this.channel = Grpc.newChannelBuilder(uri, InsecureChannelCredentials.create()).build();
         this.futureStub = GameServiceGrpc.newFutureStub(channel);
         this.asyncStub = GameServiceGrpc.newStub(channel);
         this.containerPlatform = containerPlatform;
+        this.capacitySupplier = capacitySupplier;
     }
 
     @Blocking
@@ -78,7 +85,13 @@ public class GameServiceClient {
         var heartbeatSender = asyncStub.heartbeat(new HeartbeatObserver(heartbeatLatch));
 
         ScheduledFuture<?> future = executor.scheduleAtFixedRate(() -> {
-            GameServiceOuterClass.HeartbeatRequest heartbeatRequest = GameServiceOuterClass.HeartbeatRequest.newBuilder().setServerId(serverId.toString()).setCapacity(0).build();
+
+            float capacity = capacitySupplier.getCapacity();
+
+            GameServiceOuterClass.HeartbeatRequest heartbeatRequest = GameServiceOuterClass.HeartbeatRequest.newBuilder()
+                    .setServerId(serverId.toString())
+                    .setCapacity(capacity)
+                    .build();
 
             heartbeatSender.onNext(heartbeatRequest);
         }, 0, 1, TimeUnit.SECONDS);
@@ -87,8 +100,8 @@ public class GameServiceClient {
         future.cancel(true);
     }
 
-    public static ReconnectingGameService reconnecting(String uri, ContainerPlatform containerPlatform) {
-        ReconnectingGameService task = new ReconnectingGameService(() -> new GameServiceClient(uri, containerPlatform));
+    public static ReconnectingGameService reconnecting(String uri, ContainerPlatform containerPlatform, CapacitySupplier capacitySupplier) {
+        ReconnectingGameService task = new ReconnectingGameService(() -> new GameServiceClient(uri, containerPlatform, capacitySupplier));
         Thread thread = new Thread(task);
         thread.setDaemon(false);
         thread.start();

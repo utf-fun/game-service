@@ -28,7 +28,7 @@ public class ServerManager {
 
     public Server getServerByContainer(String containerId) {
         for (Server server : servers) {
-            if (server.getContainerInfo().containerId().equals(containerId)) {
+            if (server.getContainerInfo().getContainerId().equals(containerId)) {
                 return server;
             }
         }
@@ -61,7 +61,7 @@ public class ServerManager {
             logger.error("Network settings for container ID {} not found.", shortContainerId);
             throw new ServerException("Network settings for container ID " + shortContainerId + " not found.");
         }
-        if (getServerByContainer(networkSettings.containerId()) != null) {
+        if (getServerByContainer(networkSettings.getContainerId()) != null) {
             logger.error("Server with ID {} already exists.", shortContainerId);
             throw new ServerException("Server with container ID " + shortContainerId + " already exists.");
         }

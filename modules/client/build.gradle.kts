@@ -1,21 +1,16 @@
 plugins {
     `java-library`
+    `maven-publish`
 }
-
-
 
 repositories {
     mavenCentral()
 }
-
 dependencies {
 
     api(project(":modules:common"))
     api(libs.bundles.grpc)
-
-    api("org.tinylog:tinylog-api:2.7.0")
-    api("org.tinylog:tinylog-impl:2.7.0")
-    api("org.tinylog:slf4j-tinylog:2.7.0")
+    api(libs.bundles.tinylog)
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

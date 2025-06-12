@@ -26,9 +26,7 @@ public class DockerContainerPlatform implements ContainerPlatform {
 
 //        new ContainerInfo(inspectResponse.getId(), new NetworkSettings(inspectResponse.getNetworkSettings().get))
 
-        return new ContainerInfo(containerId, new NetworkSettings(
-                hostName, List.of()
-        ));
+        return new DockerContainer(containerId, new NetworkSettings(hostName, List.of()));
     }
 
     private DockerClient createDockerClient(String dockerHost) {
