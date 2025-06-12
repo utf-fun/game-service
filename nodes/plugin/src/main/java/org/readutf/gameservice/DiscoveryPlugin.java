@@ -10,6 +10,9 @@ public class DiscoveryPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        ReconnectingGameService reconnecting = GameServiceClient.reconnecting("orchestrator:50052", new DockerPlatform(), () -> 0.5f);
+
+        String host = System.getenv("DISCOVERY_HOST") + ":" + System.getenv("DISCOVERY_PORT");
+
+        ReconnectingGameService reconnecting = GameServiceClient.reconnecting(":50052", new DockerPlatform(), () -> 0.5f);
     }
 }
