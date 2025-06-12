@@ -68,6 +68,6 @@ jobs:
         draft: false
         prerelease: false
         files: |
-          plugin/build/libs/*.jar
+          nodes/plugin/build/libs/*.jar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
