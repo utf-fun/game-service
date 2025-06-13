@@ -9,7 +9,6 @@ import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.credentials.AccessTokenAuthentication;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.readutf.gameservice.common.container.ContainerInfo;
 import org.readutf.gameservice.common.container.ContainerPort;
 import org.readutf.gameservice.common.container.NetworkSettings;
 import org.readutf.gameservice.container.ContainerPlatform;
@@ -19,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class KubernetesPlatform implements ContainerPlatform {
+public class KubernetesPlatform implements ContainerPlatform<KubernetesContainer> {
 
     private static final Logger log = LoggerFactory.getLogger(KubernetesPlatform.class);
     private final ApiClient client;
@@ -40,7 +39,7 @@ public class KubernetesPlatform implements ContainerPlatform {
     }
 
     @Override
-    public @Nullable ContainerInfo getContainerInfo(String containerId) {
+    public @Nullable KubernetesContainer getContainerInfo(String containerId) {
 
         V1PodList podInfo;
         try {

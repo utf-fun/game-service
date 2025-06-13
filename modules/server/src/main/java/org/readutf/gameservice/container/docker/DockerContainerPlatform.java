@@ -12,12 +12,12 @@ import org.readutf.gameservice.container.ContainerPlatform;
 
 import java.util.List;
 
-public class DockerContainerPlatform implements ContainerPlatform {
+public class DockerContainerPlatform implements ContainerPlatform<DockerContainer> {
 
     private final DockerClient dockerHttpClient = createDockerClient("unix:///var/run/docker.sock");
 
     @Override
-    public @Nullable ContainerInfo getContainerInfo(String shortContainerId) {
+    public @Nullable DockerContainer getContainerInfo(String shortContainerId) {
 
         InspectContainerResponse inspectResponse = dockerHttpClient.inspectContainerCmd(shortContainerId).exec();
 

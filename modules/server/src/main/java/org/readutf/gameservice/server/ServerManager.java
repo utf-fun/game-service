@@ -21,10 +21,10 @@ public class ServerManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerManager.class);
 
-    private final ContainerPlatform containerPlatform;
+    private final ContainerPlatform<?> containerPlatform;
     private final List<Server> servers;
 
-    public ServerManager(ContainerPlatform containerPlatform) {
+    public ServerManager(ContainerPlatform<?> containerPlatform) {
         this.containerPlatform = containerPlatform;
         this.servers = new ArrayList<>();
     }
