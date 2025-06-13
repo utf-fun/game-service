@@ -10,7 +10,7 @@ EXPOSE 9393
 EXPOSE 50052
 
 # Copy the JAR file into the image
-COPY build/libs/server-1.0.0-all.jar app.jar
+COPY build/libs/discovery-server.jar discovery-server.jar
 
 # Set the entry point to run the jar
-ENTRYPOINT ["java", "-Xmx500m", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx200m", "-jar", "discovery-server.jar"]
