@@ -3,7 +3,7 @@ package org.readutf.gameservice.client.platform;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class DockerPlatform implements ContainerPlatform{
+public class DockerResolver implements ContainerResolver {
     @Override
     public String getContainerId() {
         try {

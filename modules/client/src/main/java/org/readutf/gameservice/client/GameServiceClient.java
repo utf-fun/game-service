@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import org.readutf.gameservice.client.capacity.CapacitySupplier;
 import org.readutf.gameservice.client.exception.GameServiceException;
-import org.readutf.gameservice.client.platform.ContainerPlatform;
+import org.readutf.gameservice.client.platform.ContainerResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,20 +32,20 @@ public class GameServiceClient {
     private final @NotNull ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final @NotNull ManagedChannel channel;
     private final @NotNull CountDownLatch heartbeatLatch = new CountDownLatch(1);
-    private final @NotNull ContainerPlatform containerPlatform;
+    private final @NotNull ContainerResolver containerResolver;
     private final @NotNull CapacitySupplier capacitySupplier;
 
-    GameServiceClient(@NotNull String uri, @NotNull ContainerPlatform containerPlatform, @NotNull CapacitySupplier capacitySupplier) {
+    GameServiceClient(@NotNull String uri, @NotNull ContainerResolver containerResolver, @NotNull CapacitySupplier capacitySupplier) {
         this.channel = Grpc.newChannelBuilder(uri, InsecureChannelCredentials.create()).build();
         this.futureStub = GameServiceGrpc.newFutureStub(channel);
         this.asyncStub = GameServiceGrpc.newStub(channel);
-        this.containerPlatform = containerPlatform;
+        this.containerResolver = containerResolver;
         this.capacitySupplier = capacitySupplier;
     }
 
     @Blocking
     boolean startBlocking() throws InterruptedException {
-        UUID serverId = register(containerPlatform.getContainerId());
+        UUID serverId = register(containerResolver.getContainerId());
 
         log.info("GameServiceClient started with serverId: {}", serverId);
 
@@ -100,8 +100,8 @@ public class GameServiceClient {
         future.cancel(true);
     }
 
-    public static ReconnectingGameService reconnecting(String uri, ContainerPlatform containerPlatform, CapacitySupplier capacitySupplier) {
-        ReconnectingGameService task = new ReconnectingGameService(() -> new GameServiceClient(uri, containerPlatform, capacitySupplier));
+    public static ReconnectingGameService reconnecting(String uri, ContainerResolver containerResolver, CapacitySupplier capacitySupplier) {
+        ReconnectingGameService task = new ReconnectingGameService(() -> new GameServiceClient(uri, containerResolver, capacitySupplier));
         Thread thread = new Thread(task);
         thread.setDaemon(false);
         thread.start();
