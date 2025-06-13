@@ -1,8 +1,11 @@
 package org.readutf.gameservice.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.readutf.gameservice.common.Game;
@@ -54,8 +57,7 @@ public class ServerManager {
         return activeServers;
     }
 
-    public UUID registerServer(String shortContainerId) throws ServerException {
-        logger.info("Registering server with container ID: {}", shortContainerId);
+    public UUID registerServer(String shortContainerId, List<String> tags) throws ServerException {
         @Nullable ContainerInfo networkSettings = containerPlatform.getContainerInfo(shortContainerId);
         if(networkSettings == null) {
             logger.error("Network settings for container ID {} not found.", shortContainerId);
@@ -66,19 +68,19 @@ public class ServerManager {
             throw new ServerException("Server with container ID " + shortContainerId + " already exists.");
         }
 
-
         Server server = new Server(
                 UUID.randomUUID(),
                 networkSettings,
                 new Heartbeat(System.currentTimeMillis(), 0),
-                new ArrayList<>());
+                tags
+        );
         servers.add(server);
 
+        logger.info("Registering server '{}' (Tags: {})", shortContainerId, String.join(", ", tags));
         return server.getServerId();
     }
 
     public void unregisterServer(@NotNull UUID serverId) {
-        logger.info("Unregistering server with ID: {}", serverId);
         Server server = getServerById(serverId);
         if (server == null) {
             logger.error("Server with ID {} not found.", serverId);
@@ -96,6 +98,5 @@ public class ServerManager {
             throw new ServerException("Server with ID " + uuid + " not found.");
         }
         serverById.setHeartbeat(new Heartbeat(System.currentTimeMillis(), capacity));
-        serverById.setGames(games);
     }
 }

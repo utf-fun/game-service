@@ -4,12 +4,10 @@ import game_server.GameServiceGrpc;
 import game_server.GameServiceOuterClass;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import java.util.ArrayList;
+
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.Nullable;
-import org.readutf.gameservice.common.Game;
 import org.readutf.gameservice.server.ServerException;
 import org.readutf.gameservice.server.ServerManager;
 import org.slf4j.Logger;
@@ -28,7 +26,7 @@ public class GameService extends GameServiceGrpc.GameServiceImplBase {
     public void register(GameServiceOuterClass.RegisterRequest request, StreamObserver<GameServiceOuterClass.RegisterResponse> responseObserver) {
         UUID serverId;
         try {
-            serverId = serverManager.registerServer(request.getContainerId());
+            serverId = serverManager.registerServer(request.getContainerId(), request.getTagsList());
         } catch (ServerException e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asException());
             return;
@@ -47,17 +45,6 @@ public class GameService extends GameServiceGrpc.GameServiceImplBase {
 
             @Override
             public void onNext(GameServiceOuterClass.HeartbeatRequest value) {
-//                List<GameServiceOuterClass.Game> protoGames = value.getGamesList();
-//
-//                List<Game> games = new ArrayList<>();
-//                for (GameServiceOuterClass.Game protoGame : protoGames) {
-//                    Game game = new Game(
-//                            UUID.fromString(protoGame.getId()),
-//                            protoGame.getPlaylist(),
-//                            protoGame.getActive()
-//                    );
-//                    games.add(game);
-//                }
 
                 try {
                     this.serverId = UUID.fromString(value.getServerId());
