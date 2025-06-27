@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-group = "org.readutf.gameservice"
+group = "org.readutf.discovery"
 version = "1.0.9"
 
 repositories {
