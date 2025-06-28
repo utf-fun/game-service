@@ -20,8 +20,20 @@ public class ReconnectingGameService implements Runnable {
         this.clientCreator = clientCreator;
     }
 
+    public void connect() {
+        Thread thread = new Thread(this);
+        thread.setName("ReconnectingGameService");
+        thread.setDaemon(false);
+        thread.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("Shutting down ReconnectingGameService");
+            shutdown();
+        }));
+    }
+
     @Override
-    public void run() {
+    public synchronized void run() {
         while (active) {
             try {
                 client = clientCreator.get();
@@ -39,7 +51,7 @@ public class ReconnectingGameService implements Runnable {
         }
     }
 
-    public void shutdown() {
+    public synchronized void shutdown() {
         active = false;
         if (client != null) {
             client.disconnect();

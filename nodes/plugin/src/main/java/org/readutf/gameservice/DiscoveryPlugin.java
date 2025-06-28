@@ -33,8 +33,8 @@ public class DiscoveryPlugin extends JavaPlugin {
                 .toList();
 
         this.gameService = GameServiceClient.builder()
-                .setHost(System.getenv("DISCOVERY_HOST"))
-                .setPort(Integer.parseInt(System.getenv("DISCOVERY_PORT")))
+                .setHost(System.getenv("GAME_SERVICE_HOST"))
+                .setPort(Integer.parseInt(System.getenv("GAME_SERVICE_PORT")))
                 .setContainerResolver(containerResolver)
                 .setTags(tags)
                 .build();
