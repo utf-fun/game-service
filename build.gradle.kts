@@ -3,8 +3,8 @@ plugins {
     `maven-publish`
 }
 
-group = "org.readutf.discovery"
-version = "1.0.9"
+group = "org.readutf.gameservice"
+version = "1.0.10"
 
 repositories {
     mavenCentral()
