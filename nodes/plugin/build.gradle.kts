@@ -19,7 +19,7 @@ repositories {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    archiveFileName.set("discovery.jar")
+    archiveFileName.set("discovery-paper.jar")
 }
 
 dependencies {
