@@ -3,6 +3,7 @@ package org.readutf.gameservice;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
@@ -33,11 +34,14 @@ public class DiscoveryProxy {
         this.gameServiceApi = new GameServiceApi(System.getenv("GAME_SERVICE_URL"));
 
         logger.info("DiscoveryProxy initialized with Game Service URL: {}", System.getenv("GAME_SERVICE_URL"));
+
     }
 
     @Subscribe
     public void onPreJoin(ServerPreConnectEvent event) {
-        List<Server> servers = new ArrayList<>();
+        logger.info("Player {} is attempting to connect to a server.", event.getPlayer().getUsername());
+
+        List<Server> servers;
         try {
             servers = gameServiceApi.getServersByTag("lobby");
         } catch (GameServiceException e) {
