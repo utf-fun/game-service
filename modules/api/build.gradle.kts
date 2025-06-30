@@ -11,6 +11,7 @@ repositories {
 dependencies {
 
     api(libs.retrofit)
+    api(libs.okhttp.logging)
     api(project(":modules:common"))
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))

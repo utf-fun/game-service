@@ -31,6 +31,8 @@ public class DiscoveryProxy {
         this.proxy = proxy;
         this.logger = logger;
         this.gameServiceApi = new GameServiceApi(System.getenv("GAME_SERVICE_URL"));
+
+        logger.info("DiscoveryProxy initialized with Game Service URL: {}", System.getenv("GAME_SERVICE_URL"));
     }
 
     @Subscribe

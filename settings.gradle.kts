@@ -8,6 +8,6 @@ include(
     "modules:api",
     "modules:server",
     "modules:client",
+    "nodes:plugin",
+    "nodes:proxy",
 )
-include("nodes:plugin")
-include("nodes:proxy")
