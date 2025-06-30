@@ -9,9 +9,5 @@ include(
     "modules:server",
     "modules:client",
 )
-include(
-    "nodes:test-server",
-    "nodes:plugin"
-)
 include("nodes:plugin")
 include("nodes:proxy")
