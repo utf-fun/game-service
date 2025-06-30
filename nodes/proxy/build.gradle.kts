@@ -30,7 +30,7 @@ dependencies {
 
 tasks {
     runVelocity {
-        velocityVersion("3.3.0-SNAPSHOT")
+        velocityVersion("3.4.0-SNAPSHOT")
     }
 }
 

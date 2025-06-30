@@ -8,26 +8,27 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.readutf.gameservice.common.container.ContainerInfo;
+import org.readutf.gameservice.common.container.NetworkSettings;
 
 @Getter
 @Setter
 public class Server {
 
-    @NotNull
-    private final UUID serverId;
+    private @NotNull final UUID serverId;
+    private @NotNull final String containerId;
+    private @NotNull final NetworkSettings networkSettings;
+    private @NotNull Heartbeat heartbeat;
+    private @NotNull List<String> tags;
 
-    @NotNull
-    private final ContainerInfo containerInfo;
-
-    @NotNull
-    private Heartbeat heartbeat;
-
-    @NotNull
-    private List<String> tags;
-
-    public Server(@NotNull UUID serverId, @NotNull ContainerInfo containerInfo, @NotNull Heartbeat heartbeat, @NotNull List<String> tags) {
+    public Server(
+            @NotNull UUID serverId,
+            @NotNull String containerId,
+            @NotNull NetworkSettings networkSettings,
+            @NotNull Heartbeat heartbeat,
+            @NotNull List<String> tags) {
         this.serverId = serverId;
-        this.containerInfo = containerInfo;
+        this.containerId = containerId;
+        this.networkSettings = networkSettings;
         this.heartbeat = heartbeat;
         this.tags = tags;
     }

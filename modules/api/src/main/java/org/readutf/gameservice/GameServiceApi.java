@@ -8,6 +8,7 @@ import org.readutf.gameservice.exceptions.GameServiceException;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -24,6 +25,8 @@ public class GameServiceApi {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(httpClient)
+                // use gson converter for JSON parsing
+                .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl(baseUrl)
                 .build();
 

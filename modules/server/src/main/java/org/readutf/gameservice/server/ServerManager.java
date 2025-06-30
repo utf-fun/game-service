@@ -31,7 +31,7 @@ public class ServerManager {
 
     public Server getServerByContainer(String containerId) {
         for (Server server : servers) {
-            if (server.getContainerInfo().getContainerId().equals(containerId)) {
+            if (server.getContainerId().equals(containerId)) {
                 return server;
             }
         }
@@ -58,19 +58,20 @@ public class ServerManager {
     }
 
     public UUID registerServer(String shortContainerId, List<String> tags) throws ServerException {
-        @Nullable ContainerInfo networkSettings = containerPlatform.getContainerInfo(shortContainerId);
-        if(networkSettings == null) {
+        @Nullable ContainerInfo containerInfo = containerPlatform.getContainerInfo(shortContainerId);
+        if(containerInfo == null) {
             logger.error("Network settings for container ID {} not found.", shortContainerId);
             throw new ServerException("Network settings for container ID " + shortContainerId + " not found.");
         }
-        if (getServerByContainer(networkSettings.getContainerId()) != null) {
+        if (getServerByContainer(containerInfo.getContainerId()) != null) {
             logger.error("Server with ID {} already exists.", shortContainerId);
             throw new ServerException("Server with container ID " + shortContainerId + " already exists.");
         }
 
         Server server = new Server(
                 UUID.randomUUID(),
-                networkSettings,
+                containerInfo.getContainerId(),
+                containerInfo.getNetworkSettings(),
                 new Heartbeat(System.currentTimeMillis(), 0),
                 tags
         );

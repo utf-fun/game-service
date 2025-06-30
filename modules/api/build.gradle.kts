@@ -11,6 +11,7 @@ repositories {
 dependencies {
 
     api(libs.retrofit)
+    api(libs.retrofit.gson)
     api(libs.okhttp.logging)
     api(project(":modules:common"))
 
