@@ -9,6 +9,7 @@ import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.javalin.Javalin;
 import io.kubernetes.client.openapi.ApiException;
 import org.readutf.gameservice.api.RouteLogger;
+import org.readutf.gameservice.api.routes.GetServerEndpoint;
 import org.readutf.gameservice.api.routes.ListServersEndpoint;
 import org.readutf.gameservice.container.kubernetes.KubernetesPlatform;
 import org.readutf.gameservice.grpc.GameService;
@@ -33,6 +34,7 @@ public class ServiceStarter {
         Javalin.create(config -> config.showJavalinBanner = false)
                 .after(new RouteLogger())
                 .get("/api/v1/server", new ListServersEndpoint(serverManager))
+                .get("/api/v1/server/{id}", new GetServerEndpoint(serverManager))
                 .start("0.0.0.0", 9393);
 
 

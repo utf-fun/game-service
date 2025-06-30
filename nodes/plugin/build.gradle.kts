@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import xyz.jpenilla.resourcefactory.bukkit.BukkitPluginYaml
 
 plugins {
@@ -5,7 +6,7 @@ plugins {
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
     id("xyz.jpenilla.run-paper") version "2.3.1"
     id("xyz.jpenilla.resource-factory-bukkit-convention") version "1.2.0"
-    id("com.gradleup.shadow") version "9.0.0-beta13"
+    id("com.gradleup.shadow") version "9.0.0-beta15"
 }
 
 java {
@@ -15,6 +16,10 @@ java {
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+}
+
+tasks.named<ShadowJar>("shadowJar") {
+    archiveFileName.set("discovery.jar")
 }
 
 dependencies {

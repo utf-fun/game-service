@@ -43,6 +43,8 @@ jobs:
           name: build-artifacts
           path: |
             nodes/plugin/build/libs/*.jar
+            nodes/proxy/build/libs/*.jar
+            modules/server/build/libs/*.jar
 
       - name: Set Release Name
         id: set_release_name

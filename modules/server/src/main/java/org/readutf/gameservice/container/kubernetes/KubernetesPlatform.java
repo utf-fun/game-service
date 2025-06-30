@@ -28,6 +28,8 @@ public class KubernetesPlatform implements ContainerPlatform<KubernetesContainer
             @NotNull String basePath,
             @NotNull String accessToken
     ) {
+        log.info("Connecting to Kubernetes API at {}", basePath);
+
         this.client = new ClientBuilder()
                 .setBasePath(basePath)
                 .setAuthentication(new AccessTokenAuthentication(accessToken))  // Use proper authentication

@@ -15,6 +15,17 @@ public class ListServersEndpoint implements Handler {
 
     @Override
     public void handle(@NotNull Context ctx) {
+        String filterTag = ctx.queryParam("tag");
+        if(filterTag != null) {
+            // Filter servers by tag
+            ctx.json(serverManager.getActiveServers().stream()
+                .filter(server -> server.getTags().stream().anyMatch(s -> s.equalsIgnoreCase(filterTag)))
+                .toList());
+
+            ctx.status(200);
+            return;
+        }
+
         ctx.contentType("application/json");
         ctx.json(serverManager.getActiveServers());
         ctx.status(200);

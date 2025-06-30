@@ -1,4 +1,4 @@
-rootProject.name = "discovery-service"
+rootProject.name = "game-service"
 include(
     "modules:common",
     "modules:api",
@@ -10,3 +10,4 @@ include(
     "nodes:plugin"
 )
 include("nodes:plugin")
+include("nodes:proxy")
