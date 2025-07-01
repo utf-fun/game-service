@@ -1,8 +1,13 @@
 .gradle
+gradle.properties
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+.idea/
+
+nodes/proxy/run
+nodes/plugin/run
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -41,3 +46,5 @@ bin/
 ### Mac OS ###
 .DS_Store
 /nodes/plugin/run/
+/.idea/
+.idea
