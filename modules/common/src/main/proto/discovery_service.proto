@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package game_server;
+package org.readutf.gameservice.proto;
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
-service GameService {
+service DiscoveryService {
 
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc Heartbeat(stream HeartbeatRequest) returns (stream HeartbeatResponse);

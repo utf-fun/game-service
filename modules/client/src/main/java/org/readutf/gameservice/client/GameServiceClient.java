@@ -1,7 +1,5 @@
 package org.readutf.gameservice.client;
 
-import game_server.GameServiceGrpc;
-import game_server.GameServiceOuterClass;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
@@ -21,6 +19,8 @@ import org.readutf.gameservice.client.capacity.CapacitySupplier;
 import org.readutf.gameservice.client.exception.GameServiceException;
 import org.readutf.gameservice.client.platform.ContainerResolver;
 import org.readutf.gameservice.client.platform.DockerResolver;
+import org.readutf.gameservice.proto.DiscoveryServiceGrpc;
+import org.readutf.gameservice.proto.DiscoveryServiceOuterClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +28,8 @@ public class GameServiceClient {
 
     private static final Logger log = LoggerFactory.getLogger(GameServiceClient.class);
 
-    private final @NotNull GameServiceGrpc.GameServiceFutureStub futureStub;
-    private final @NotNull GameServiceGrpc.GameServiceStub asyncStub;
+    private final @NotNull DiscoveryServiceGrpc.DiscoveryServiceFutureStub futureStub;
+    private final @NotNull DiscoveryServiceGrpc.DiscoveryServiceStub asyncStub;
     private final @NotNull ScheduledExecutorService executor;
     private final @NotNull ManagedChannel channel;
     private final @NotNull CountDownLatch heartbeatLatch = new CountDownLatch(1);
@@ -44,8 +44,8 @@ public class GameServiceClient {
             @NotNull List<String> tags) {
         this.channel =
                 Grpc.newChannelBuilder(uri, InsecureChannelCredentials.create()).build();
-        this.futureStub = GameServiceGrpc.newFutureStub(channel);
-        this.asyncStub = GameServiceGrpc.newStub(channel);
+        this.futureStub = DiscoveryServiceGrpc.newFutureStub(channel);
+        this.asyncStub = DiscoveryServiceGrpc.newStub(channel);
         this.executor = Executors.newSingleThreadScheduledExecutor();
         this.tags = tags;
         this.containerResolver = containerResolver;
@@ -81,11 +81,11 @@ public class GameServiceClient {
 
     private UUID register(String container, List<String> tags) throws GameServiceException {
         try {
-            GameServiceOuterClass.RegisterRequest request = GameServiceOuterClass.RegisterRequest.newBuilder()
+            DiscoveryServiceOuterClass.RegisterRequest request = DiscoveryServiceOuterClass.RegisterRequest.newBuilder()
                     .addAllTags(tags)
                     .setContainerId(container)
                     .build();
-            GameServiceOuterClass.RegisterResponse registerResponse =
+            DiscoveryServiceOuterClass.RegisterResponse registerResponse =
                     futureStub.register(request).get(15, TimeUnit.SECONDS);
             return UUID.fromString(registerResponse.getId());
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -101,8 +101,8 @@ public class GameServiceClient {
                 () -> {
                     float capacity = capacitySupplier.getCapacity();
 
-                    GameServiceOuterClass.HeartbeatRequest heartbeatRequest =
-                            GameServiceOuterClass.HeartbeatRequest.newBuilder()
+                    var heartbeatRequest =
+                            DiscoveryServiceOuterClass.HeartbeatRequest.newBuilder()
                                     .setServerId(serverId.toString())
                                     .setCapacity(capacity)
                                     .build();

@@ -1,12 +1,13 @@
 package org.readutf.gameservice.client;
 
-import game_server.GameServiceOuterClass;
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.CountDownLatch;
+
+import org.readutf.gameservice.proto.DiscoveryServiceOuterClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HeartbeatObserver implements StreamObserver<GameServiceOuterClass.HeartbeatResponse> {
+public class HeartbeatObserver implements StreamObserver<DiscoveryServiceOuterClass.HeartbeatResponse> {
     private static final Logger log = LoggerFactory.getLogger(HeartbeatObserver.class);
 
     private final CountDownLatch countDownLatch;
@@ -16,7 +17,7 @@ public class HeartbeatObserver implements StreamObserver<GameServiceOuterClass.H
     }
 
     @Override
-    public void onNext(GameServiceOuterClass.HeartbeatResponse value) {
+    public void onNext(DiscoveryServiceOuterClass.HeartbeatResponse value) {
     }
 
     @Override
