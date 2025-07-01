@@ -37,8 +37,20 @@ subprojects {
                     from(components["java"])
                 }
             }
-        }
 
+            repositories {
+                maven {
+                    name = "utfMvn"
+                    url = uri("https://mvn.utf.lol/releases")
+                    credentials {
+                        username = System.getenv("UTF_MVN_USER") ?: findProperty("utfMvnUser")?.toString() ?: ""
+                        password = System.getenv("UTF_MVN_PASS") ?: findProperty("utfMvnPass")?.toString() ?: ""
+                    }
+                }
+
+            }
+
+        }
     }
 
 }
