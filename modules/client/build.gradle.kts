@@ -5,11 +5,11 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://mvn.utf.lol/releases") }
 }
 dependencies {
 
     api(project(":modules:common"))
-    api(libs.bundles.grpc)
     api(libs.bundles.tinylog)
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))

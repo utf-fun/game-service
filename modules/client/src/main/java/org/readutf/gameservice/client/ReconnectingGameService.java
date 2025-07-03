@@ -11,12 +11,12 @@ public class ReconnectingGameService implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(ReconnectingGameService.class);
 
     @NotNull
-    private final Supplier<GameServiceClient> clientCreator;
+    private final ClientCreator clientCreator;
 
     private GameServiceClient client;
     private boolean active = true;
 
-    public ReconnectingGameService(Supplier<GameServiceClient> clientCreator) {
+    public ReconnectingGameService(ClientCreator clientCreator) {
         this.clientCreator = clientCreator;
     }
 
@@ -36,7 +36,7 @@ public class ReconnectingGameService implements Runnable {
     public synchronized void run() {
         while (active) {
             try {
-                client = clientCreator.get();
+                client = clientCreator.createClient();
                 client.startBlocking();
                 client = null;
             } catch (GameServiceException e) {
@@ -45,7 +45,7 @@ public class ReconnectingGameService implements Runnable {
                     Thread.sleep(5000);
                 } catch (InterruptedException ex) {
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
