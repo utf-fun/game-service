@@ -1,6 +1,5 @@
 package org.readutf.gameservice.client;
 
-import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.readutf.gameservice.client.exception.GameServiceException;
 import org.slf4j.Logger;
@@ -37,7 +36,7 @@ public class ReconnectingGameService implements Runnable {
         while (active) {
             try {
                 client = clientCreator.createClient();
-                client.startBlocking();
+                client.start();
                 client = null;
             } catch (GameServiceException e) {
                 log.error("A connection error occurred", e);

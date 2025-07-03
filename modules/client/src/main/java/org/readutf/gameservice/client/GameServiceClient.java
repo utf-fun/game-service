@@ -16,6 +16,7 @@ import org.readutf.gameservice.common.packet.HeartbeatPacket;
 import org.readutf.gameservice.common.packet.ServerRegisterPacket;
 import org.readutf.hermes.kryo.KryoPacketCodec;
 import org.readutf.hermes.nio.NioClientPlatform;
+import org.readutf.hermes.packet.ChannelClosePacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +45,13 @@ public class GameServiceClient {
         this.capacitySupplier = capacitySupplier;
     }
 
+    /**
+     * Will connect to the game server, register the container, start sending heartbeats,
+     * and then block until the connection is closed.
+     */
     @Blocking
-    void startBlocking() throws Exception {
-        client.connectBlocking(address);
+    void start() throws Exception {
+        client.connect(address);
 
         UUID serverId = register(containerResolver.getContainerId(), tags);
 
@@ -57,6 +62,13 @@ public class GameServiceClient {
         log.info("GameServiceClient finished with serverId: {}", serverId);
 
         shutdown();
+
+        CountDownLatch latch = new CountDownLatch(1);
+        client.listen(ChannelClosePacket.class, (channel, packet) -> {
+            latch.countDown();
+            return null;
+        });
+        latch.await();
     }
 
     void disconnect() {
