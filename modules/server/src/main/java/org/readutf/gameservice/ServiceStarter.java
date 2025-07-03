@@ -3,6 +3,7 @@ package org.readutf.gameservice;
 import com.esotericsoftware.kryo.Kryo;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.javalin.Javalin;
@@ -26,7 +27,7 @@ public class ServiceStarter {
 
     private final @NotNull AtomicBoolean running = new AtomicBoolean(true);
 
-    public ServiceStarter() throws IOException {
+    public ServiceStarter() throws Exception {
 
         String DOCKER_URL = System.getenv("DOCKER_URL");
         String KUBERNETES_URL = System.getenv("KUBERNETES_URL");
@@ -55,7 +56,7 @@ public class ServiceStarter {
         });
 
         NioServerPlatform server = new NioServerPlatform(codec);
-
+        server.start(new InetSocketAddress("0.0.0.0", 50052));
 
         Javalin.create(config -> config.showJavalinBanner = false)
                 .after(new RouteLogger())
@@ -81,7 +82,7 @@ public class ServiceStarter {
         keepAliveThread.start();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         log.info("Starting server...");
         new ServiceStarter();
     }
