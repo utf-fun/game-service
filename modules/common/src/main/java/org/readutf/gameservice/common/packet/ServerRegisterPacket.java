@@ -13,7 +13,7 @@ public class ServerRegisterPacket extends Packet<UUID> {
     private final List<String> playlists;
 
     public ServerRegisterPacket(String containerId, List<String> tags, List<String> playlists) {
-        super(false);
+        super(true);
         this.containerId = containerId;
         this.tags = tags;
         this.playlists = playlists;

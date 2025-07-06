@@ -6,7 +6,7 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://mvn.utf.lol/releases") }
+    mavenLocal()
 }
 
 dependencies {

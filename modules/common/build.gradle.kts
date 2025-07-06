@@ -7,7 +7,7 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://mvn.utf.lol/releases") }
+    mavenLocal()
 }
 
 dependencies {
@@ -21,9 +21,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    api("org.readutf.hermes:core:2.0.3")
-    api("org.readutf.hermes:nio:2.0.3")
-    api("org.readutf.hermes:kryo:2.0.3")
+    var hermesVersion = "dev"
+
+    api("org.readutf.hermes:core:$hermesVersion")
+    api("org.readutf.hermes:netty:$hermesVersion")
+    api("org.readutf.hermes:kryo:$hermesVersion")
 
     //kryo
     api("com.esotericsoftware:kryo:5.6.2")

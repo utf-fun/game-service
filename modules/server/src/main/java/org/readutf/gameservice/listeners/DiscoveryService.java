@@ -9,7 +9,7 @@ import org.readutf.gameservice.common.packet.HeartbeatPacket;
 import org.readutf.gameservice.common.packet.ServerRegisterPacket;
 import org.readutf.gameservice.server.ServerException;
 import org.readutf.gameservice.server.ServerManager;
-import org.readutf.hermes.platform.Channel;
+import org.readutf.hermes.platform.HermesChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,23 +17,28 @@ public class DiscoveryService {
 
     private static final Logger log = LoggerFactory.getLogger(DiscoveryService.class);
     private final ServerManager serverManager;
-    private final Map<Channel, UUID> channelToServerIdMap = new ConcurrentHashMap<>();
+    private final Map<HermesChannel, UUID> channelToServerIdMap = new ConcurrentHashMap<>();
 
     public DiscoveryService(ServerManager serverManager) {
         this.serverManager = serverManager;
     }
 
-    public UUID onRegister(Channel channel, ServerRegisterPacket packet) throws ServerException {
+    public UUID onRegister(HermesChannel channel, ServerRegisterPacket packet) throws ServerException {
         UUID serverId = serverManager.registerServer(packet.getContainerId(), packet.getTags());
         channelToServerIdMap.put(channel, serverId);
         return serverId;
     }
 
-    public void onHeartbeat(Channel channel, HeartbeatPacket heartbeatPacket) throws ServerException {
+    public void onHeartbeat(HermesChannel channel, HeartbeatPacket heartbeatPacket) {
         UUID serverId = channelToServerIdMap.get(channel);
         if (serverId == null) {
-            throw new ServerException("Server not registered");
+            log.warn("Received heartbeat from unregistered server: {}", channel.getId());
+            return;
         }
-        serverManager.handleHeartbeat(serverId, heartbeatPacket.getCapacity(), Collections.emptyList());
+        try {
+            serverManager.handleHeartbeat(serverId, heartbeatPacket.getCapacity(), Collections.emptyList());
+        } catch (ServerException e) {
+            log.error("Failed to handle heartbeat for server {}: {}", serverId, e.getMessage(), e);
+        }
     }
 }

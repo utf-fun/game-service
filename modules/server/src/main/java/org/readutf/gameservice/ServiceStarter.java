@@ -2,7 +2,6 @@ package org.readutf.gameservice;
 
 import com.esotericsoftware.kryo.Kryo;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -11,13 +10,17 @@ import org.jetbrains.annotations.NotNull;
 import org.readutf.gameservice.api.RouteLogger;
 import org.readutf.gameservice.api.routes.GetServerEndpoint;
 import org.readutf.gameservice.api.routes.ListServersEndpoint;
+import org.readutf.gameservice.common.SharedKryo;
 import org.readutf.gameservice.common.packet.HeartbeatPacket;
+import org.readutf.gameservice.common.packet.ServerRegisterPacket;
 import org.readutf.gameservice.container.ContainerPlatform;
 import org.readutf.gameservice.container.docker.DockerContainerPlatform;
 import org.readutf.gameservice.container.kubernetes.KubernetesPlatform;
+import org.readutf.gameservice.listeners.DiscoveryService;
+import org.readutf.gameservice.server.ServerException;
 import org.readutf.gameservice.server.ServerManager;
 import org.readutf.hermes.kryo.KryoPacketCodec;
-import org.readutf.hermes.nio.NioServerPlatform;
+import org.readutf.hermes.netty.NettyServerPlatform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,16 +50,15 @@ public class ServiceStarter {
 
         var serverManager = new ServerManager(platform);
 
-        KryoPacketCodec codec = new KryoPacketCodec(() -> {
-            Kryo kryo = new Kryo();
+        KryoPacketCodec codec = new KryoPacketCodec(SharedKryo::createKryo);
 
-            kryo.register(HeartbeatPacket.class);
+        NettyServerPlatform server = new NettyServerPlatform(codec);
+        DiscoveryService discoveryService = new DiscoveryService(serverManager);
 
-            return kryo;
-        });
-
-        NioServerPlatform server = new NioServerPlatform(codec);
         server.start(new InetSocketAddress("0.0.0.0", 50052));
+        server.listenIgnore(HeartbeatPacket.class, discoveryService::onHeartbeat);
+        server.listen(ServerRegisterPacket.class, discoveryService::onRegister);
+
 
         Javalin.create(config -> config.showJavalinBanner = false)
                 .after(new RouteLogger())
