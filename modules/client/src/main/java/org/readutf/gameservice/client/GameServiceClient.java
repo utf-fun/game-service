@@ -1,166 +1,75 @@
 package org.readutf.gameservice.client;
 
-import io.grpc.Grpc;
-import io.grpc.InsecureChannelCredentials;
-import io.grpc.ManagedChannel;
-
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import org.readutf.gameservice.client.capacity.CapacitySupplier;
-import org.readutf.gameservice.client.exception.GameServiceException;
+import org.readutf.gameservice.client.heartbeat.HeartbeatTask;
 import org.readutf.gameservice.client.platform.ContainerResolver;
-import org.readutf.gameservice.client.platform.DockerResolver;
-import org.readutf.gameservice.proto.DiscoveryServiceGrpc;
-import org.readutf.gameservice.proto.DiscoveryServiceOuterClass;
+import org.readutf.gameservice.common.SharedKryo;
+import org.readutf.gameservice.common.packet.ServerRegisterPacket;
+import org.readutf.hermes.kryo.KryoPacketCodec;
+import org.readutf.hermes.netty.NettyClientPlatform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GameServiceClient {
 
     private static final Logger log = LoggerFactory.getLogger(GameServiceClient.class);
-
-    private final @NotNull DiscoveryServiceGrpc.DiscoveryServiceFutureStub futureStub;
-    private final @NotNull DiscoveryServiceGrpc.DiscoveryServiceStub asyncStub;
-    private final @NotNull ScheduledExecutorService executor;
-    private final @NotNull ManagedChannel channel;
-    private final @NotNull CountDownLatch heartbeatLatch = new CountDownLatch(1);
-    private final @NotNull ContainerResolver containerResolver;
+    private NettyClientPlatform nettyClient;
+    private final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService heartbeatExecutor;
+    private final ContainerResolver containerResolver;
+    private final @NotNull List<@NotNull String> tags;
     private final @NotNull CapacitySupplier capacitySupplier;
-    private final @NotNull List<String> tags;
 
-    GameServiceClient(
-            @NotNull String uri,
-            @NotNull ContainerResolver containerResolver,
-            @NotNull CapacitySupplier capacitySupplier,
-            @NotNull List<String> tags) {
-        this.channel =
-                Grpc.newChannelBuilder(uri, InsecureChannelCredentials.create()).build();
-        this.futureStub = DiscoveryServiceGrpc.newFutureStub(channel);
-        this.asyncStub = DiscoveryServiceGrpc.newStub(channel);
-        this.executor = Executors.newSingleThreadScheduledExecutor();
-        this.tags = tags;
+    public GameServiceClient(ContainerResolver containerResolver, @NotNull List<String> tags, @NotNull CapacitySupplier capacitySupplier) {
         this.containerResolver = containerResolver;
+        this.heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
         this.capacitySupplier = capacitySupplier;
+        this.tags = new ArrayList<>(tags);
     }
 
     @Blocking
-    boolean startBlocking() throws InterruptedException {
-        UUID serverId = register(containerResolver.getContainerId(), tags);
+    public void startBlocking(InetSocketAddress address) {
 
-        log.info("GameServiceClient started with serverId: {}", serverId);
+        heartbeatExecutor.scheduleAtFixedRate(new HeartbeatTask(() -> nettyClient, capacitySupplier), 0, 1, TimeUnit.SECONDS);
 
-        startHeartbeat(serverId);
+        reconnectExecutor.scheduleAtFixedRate(() -> {
+            try {
+                this.nettyClient = new NettyClientPlatform(new KryoPacketCodec(SharedKryo::createKryo));
 
-        log.info("GameServiceClient finished with serverId: {}", serverId);
+                nettyClient.connect(address);
 
-        shutdown();
+                log.info("Connected to Game Service at {}", address);
 
-        return true;
+                nettyClient.sendPacket(new ServerRegisterPacket(containerResolver.getContainerId(), tags, new ArrayList<>()));
+
+                nettyClient.awaitShutdown();
+
+
+                this.nettyClient = null;
+            } catch (Exception e) {
+                log.error("Failed to connect to Game Service, restarting in 5 seconds", e);
+            }
+
+        }, 0, 5, TimeUnit.SECONDS);
+
+
+        log.info("Client shut down");
     }
 
-    void disconnect() {
-        heartbeatLatch.countDown();
-    }
-
-    private void shutdown() throws InterruptedException {
-        executor.shutdown();
-        if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
-            executor.shutdownNow();
-        }
-        channel.awaitTermination(1, TimeUnit.SECONDS);
-    }
-
-    private UUID register(String container, List<String> tags) throws GameServiceException {
-        try {
-            DiscoveryServiceOuterClass.RegisterRequest request = DiscoveryServiceOuterClass.RegisterRequest.newBuilder()
-                    .addAllTags(tags)
-                    .setContainerId(container)
-                    .build();
-            DiscoveryServiceOuterClass.RegisterResponse registerResponse =
-                    futureStub.register(request).get(15, TimeUnit.SECONDS);
-            return UUID.fromString(registerResponse.getId());
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new GameServiceException("Failed to register container", e);
+    public void stop() {
+        reconnectExecutor.shutdown();
+        if (nettyClient != null) {
+            nettyClient.shutdown();
         }
     }
 
-    @Blocking
-    private void startHeartbeat(UUID serverId) throws InterruptedException {
-        var heartbeatSender = asyncStub.heartbeat(new HeartbeatObserver(heartbeatLatch));
-
-        ScheduledFuture<?> future = executor.scheduleAtFixedRate(
-                () -> {
-                    float capacity = capacitySupplier.getCapacity();
-
-                    var heartbeatRequest =
-                            DiscoveryServiceOuterClass.HeartbeatRequest.newBuilder()
-                                    .setServerId(serverId.toString())
-                                    .setCapacity(capacity)
-                                    .build();
-
-                    heartbeatSender.onNext(heartbeatRequest);
-                },
-                0,
-                1,
-                TimeUnit.SECONDS);
-
-        heartbeatLatch.await();
-        future.cancel(true);
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-
-        private String host = "localhost"; // Default host
-        private int port = 50051; // Default port
-        private ContainerResolver resolver = new DockerResolver();
-        private CapacitySupplier capacitySupplier = () -> 0.5f; // Default capacity supplier
-        private List<String> tags = new ArrayList<>();
-
-        public Builder setHost(String host) {
-            this.host = host;
-            return this;
-        }
-
-        public Builder setPort(int port) {
-            this.port = port;
-            return this;
-        }
-
-        public Builder setContainerResolver(ContainerResolver resolver) {
-            this.resolver = resolver;
-            return this;
-        }
-
-        public Builder setCapacitySupplier(CapacitySupplier capacitySupplier) {
-            this.capacitySupplier = capacitySupplier;
-            return this;
-        }
-
-        public Builder setTags(Collection<String> tags) {
-            this.tags = new ArrayList<>(tags);
-            return this;
-        }
-
-        public void addTag(String tag) {
-            tags.add(tag);
-        }
-
-        public ReconnectingGameService build() {
-            String uri = host + ":" + port;
-            return new ReconnectingGameService(() -> new GameServiceClient(uri, resolver, capacitySupplier, tags));
-        }
-    }
 }

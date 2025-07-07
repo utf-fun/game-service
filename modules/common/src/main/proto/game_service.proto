@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package org.readutf.gameservice.proto;
+
+service GameService {
+  rpc Channel(stream GameResponse) returns (stream GameRequest);
+}
+
+message GameRequest {
+  string id = 1;
+  string playlist = 2;
+  repeated Team teams = 3;
+}
+
+message GameResponse {
+  string id = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message Team {
+  repeated string members = 1;
+}

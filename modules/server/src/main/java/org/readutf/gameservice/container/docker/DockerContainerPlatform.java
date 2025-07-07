@@ -14,7 +14,16 @@ import java.util.List;
 
 public class DockerContainerPlatform implements ContainerPlatform<DockerContainer> {
 
-    private final DockerClient dockerHttpClient = createDockerClient("unix:///var/run/docker.sock");
+
+    private final DockerClient dockerHttpClient;
+
+    public DockerContainerPlatform(String dockerUrl) {
+        if (dockerUrl == null || dockerUrl.isEmpty()) {
+            throw new IllegalArgumentException("Docker URL must not be null or empty");
+        }
+        this.dockerHttpClient = createDockerClient(dockerUrl);
+    }
+
 
     @Override
     public @Nullable DockerContainer getContainerInfo(String shortContainerId) {

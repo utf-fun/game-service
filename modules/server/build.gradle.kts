@@ -8,6 +8,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 tasks.withType<Jar> {
@@ -20,7 +21,6 @@ dependencies {
 
     implementation(project(":modules:common"))
 
-    implementation(libs.bundles.grpc)
     implementation(libs.bundles.tinylog)
     implementation(libs.docker)
     implementation(libs.docker.transport)

@@ -15,7 +15,7 @@ java {
 
 repositories {
     mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
+    mavenLocal()
 }
 
 tasks.named<ShadowJar>("shadowJar") {
