@@ -1,6 +1,7 @@
 package org.readutf.gameservice;
 
 import org.readutf.gameservice.client.GameServiceClient;
+import org.readutf.gameservice.client.platform.DockerResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ public class IntegrationTest {
 
     public static void main(String[] args) throws Exception {
 
-        GameServiceClient serviceClient = new GameServiceClient();
+        GameServiceClient serviceClient = new GameServiceClient(new DockerResolver(), List.of("test", "integration"));
 
 
         serviceClient.startBlocking(new InetSocketAddress("gameservice", 50052));

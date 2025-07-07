@@ -59,7 +59,7 @@ public class ServerManager {
 
     public UUID registerServer(String shortContainerId, List<String> tags) throws ServerException {
         @Nullable ContainerInfo containerInfo = containerPlatform.getContainerInfo(shortContainerId);
-        if(containerInfo == null) {
+        if (containerInfo == null) {
             logger.error("Network settings for container ID {} not found.", shortContainerId);
             throw new ServerException("Network settings for container ID " + shortContainerId + " not found.");
         }

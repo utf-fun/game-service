@@ -1,50 +1,64 @@
 package org.readutf.gameservice.client;
 
 import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.NotNull;
+import org.readutf.gameservice.client.platform.ContainerResolver;
 import org.readutf.gameservice.common.SharedKryo;
+import org.readutf.gameservice.common.packet.ServerRegisterPacket;
 import org.readutf.hermes.kryo.KryoPacketCodec;
 import org.readutf.hermes.netty.NettyClientPlatform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GameServiceClient {
 
     private static final Logger log = LoggerFactory.getLogger(GameServiceClient.class);
     private NettyClientPlatform nettyClient;
-    private AtomicBoolean running = new AtomicBoolean(true);
+    private final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final ContainerResolver containerResolver;
+    private final @NotNull List<@NotNull String> tags;
 
-    public GameServiceClient() {
+    public GameServiceClient(ContainerResolver containerResolver, @NotNull List<String> tags) {
+        this.containerResolver = containerResolver;
+        this.tags = new ArrayList<>(tags);
     }
 
     @Blocking
     public void startBlocking(InetSocketAddress address) throws Exception {
-        while (running.get()) {
+
+        reconnectExecutor.scheduleAtFixedRate(() -> {
             try {
                 this.nettyClient = new NettyClientPlatform(new KryoPacketCodec(SharedKryo::createKryo));
 
-                nettyClient.connect(address, 5000);
+                nettyClient.connect(address);
 
+                log.info("Connected to Game Service at {}", address);
 
-                log.info("Connected, waiting for shutdown...");
+                nettyClient.sendPacket(new ServerRegisterPacket(containerResolver.getContainerId(), tags, new ArrayList<>()));
+
                 nettyClient.awaitShutdown();
-                log.info("Shut down");
 
 
                 this.nettyClient = null;
             } catch (Exception e) {
-                log.error("Failed to connect to Game Service, restarting in 5 seconds");
-                Thread.sleep(5000); // Retry after 5 seconds
+                log.error("Failed to connect to Game Service, restarting in 5 seconds", e);
             }
-        }
+
+        }, 0, 5, TimeUnit.SECONDS);
+
 
         log.info("Client shut down");
     }
 
     public void stop() {
-        running.set(false);
+        reconnectExecutor.shutdown();
         if (nettyClient != null) {
             nettyClient.shutdown();
         }
