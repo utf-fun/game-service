@@ -1,21 +1,30 @@
 package org.readutf.gameservice;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.readutf.gameservice.client.GameServiceClient;
-import org.readutf.gameservice.client.ReconnectingGameService;
 import org.readutf.gameservice.client.platform.ContainerResolver;
 import org.readutf.gameservice.client.platform.DockerResolver;
 import org.readutf.gameservice.client.platform.KubernetesResolver;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
 
 public class DiscoveryPlugin extends JavaPlugin {
 
-    private final ReconnectingGameService gameService;
+    private @NotNull final GameServiceClient serviceClient;
+    private @NotNull final Thread clientThread;
 
     public DiscoveryPlugin() {
+        this.serviceClient = new GameServiceClient(getResolver(), getDiscoveryTags(), () -> 0.5f);
+        this.clientThread = new Thread(() -> serviceClient.startBlocking(new InetSocketAddress("gameservice", 50052)));
+        this.clientThread.setName("GameServiceClientThread");
+        this.clientThread.setDaemon(false);
+        this.clientThread.start();
+    }
 
+    private static @NotNull ContainerResolver getResolver() {
         String resolver = System.getenv("DISCOVERY_RESOLVER");
 
         ContainerResolver containerResolver;
@@ -24,27 +33,25 @@ public class DiscoveryPlugin extends JavaPlugin {
         } else {
             containerResolver = new DockerResolver();
         }
+        return containerResolver;
+    }
 
+    private static @NotNull List<String> getDiscoveryTags() {
         String tagsEnv = System.getenv("DISCOVERY_TAGS");
         tagsEnv = tagsEnv == null ? "" : tagsEnv;
-        List<String> tags = Arrays.stream(tagsEnv.split("[,\r\n]+"))
+        return Arrays.stream(tagsEnv.split("[,\r\n]+"))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .toList();
-
-        this.gameService = GameServiceClient.builder()
-                .setHost(System.getenv("GAME_SERVICE_HOST"))
-                .setPort(Integer.parseInt(System.getenv("GAME_SERVICE_PORT")))
-                .setContainerResolver(containerResolver)
-                .setTags(tags)
-                .build();
     }
 
     @Override
-    public void onEnable() {}
+    public void onEnable() {
+    }
 
     @Override
     public void onDisable() {
-        this.gameService.shutdown();
+        serviceClient.stop();
+        clientThread.interrupt();
     }
 }
