@@ -14,7 +14,11 @@ public class IntegrationTest {
 
     public static void main(String[] args) throws Exception {
 
-        GameServiceClient serviceClient = new GameServiceClient(new DockerResolver(), List.of("test", "integration"), () -> 0.5f);
+//        GameServiceClient serviceClient = new GameServiceClient(new DockerResolver(), List.of("test", "integration"), () -> 0.5f);
+
+        GameServiceClient client = GameServiceClient.builder(new DockerResolver())
+                .set(List.of("test", "integration"))
+                .build();
 
         serviceClient.startBlocking(new InetSocketAddress("gameservice", 50052));
     }

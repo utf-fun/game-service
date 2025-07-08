@@ -21,7 +21,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    var hermesVersion = "dev"
+    var hermesVersion = "2.1.7"
 
     api("org.readutf.hermes:core:$hermesVersion")
     api("org.readutf.hermes:netty:$hermesVersion")
