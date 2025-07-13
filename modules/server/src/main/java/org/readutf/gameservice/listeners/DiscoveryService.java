@@ -5,10 +5,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jetbrains.annotations.Nullable;
 import org.readutf.gameservice.common.packet.HeartbeatPacket;
 import org.readutf.gameservice.common.packet.ServerRegisterPacket;
 import org.readutf.gameservice.server.ServerException;
 import org.readutf.gameservice.server.ServerManager;
+import org.readutf.hermes.packet.ChannelClosePacket;
 import org.readutf.hermes.platform.HermesChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,5 +43,15 @@ public class DiscoveryService {
         } catch (ServerException e) {
             log.error("Failed to handle heartbeat for server {}: {}", serverId, e.getMessage(), e);
         }
+    }
+
+    public void onChannelClose(HermesChannel channel, ChannelClosePacket packet) {
+        @Nullable UUID serverId = channelToServerIdMap.get(channel);
+        if (serverId == null) {
+            log.warn("Received channel close for unregistered server: {}", channel.getId());
+            return;
+        }
+        channelToServerIdMap.remove(channel);
+        serverManager.unregisterServer(serverId);
     }
 }

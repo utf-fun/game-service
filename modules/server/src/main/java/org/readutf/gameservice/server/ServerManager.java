@@ -56,7 +56,7 @@ public class ServerManager {
         servers.add(server);
         serverChannels.put(server.getServerId(), hermesChannel);
 
-        logger.info("Registering server '{}' (Tags: {})", shortContainerId, String.join(", ", tags));
+        logger.info("Registering server '{}' (Tags: {}, Playlists: {})", shortContainerId, String.join(", ", tags), String.join(", ", playlists));
         return server.getServerId();
     }
 

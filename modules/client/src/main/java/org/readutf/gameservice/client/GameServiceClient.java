@@ -18,9 +18,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class GameServiceClient {
 
@@ -67,7 +65,7 @@ public class GameServiceClient {
         heartbeatExecutor.scheduleAtFixedRate(
                 new HeartbeatTask(() -> nettyClient, capacitySupplier), 0, 1, TimeUnit.SECONDS);
 
-        reconnectExecutor.scheduleAtFixedRate(
+        ScheduledFuture<?> task = reconnectExecutor.scheduleAtFixedRate(
                 () -> {
                     try {
                         this.nettyClient = new NettyClientPlatform(new KryoPacketCodec(SharedKryo::createKryo));
@@ -76,13 +74,15 @@ public class GameServiceClient {
 
                         log.info("Connected to Game Service at {}", address);
 
-                        nettyClient.sendPacket(
-                                new ServerRegisterPacket(containerResolver.getContainerId(), tags, playlists));
+                        nettyClient.sendPacket(new ServerRegisterPacket(containerResolver.getContainerId(), tags, playlists));
 
-                        nettyClient.listen(
-                                GameRequestPacket.class,
-                                (hermesChannel, packet) ->
-                                        requestHandler.requestGame(packet.getPlaylist(), packet.getTeams()));
+                        nettyClient.listen(GameRequestPacket.class, (hermesChannel, packet) -> {
+                            log.info(
+                                    "Received game request for playlist: {} with teams: {}",
+                                    packet.getPlaylist(),
+                                    packet.getTeams());
+                            return requestHandler.requestGame(packet.getPlaylist(), packet.getTeams());
+                        });
 
                         nettyClient.awaitShutdown();
 
@@ -95,7 +95,11 @@ public class GameServiceClient {
                 5,
                 TimeUnit.SECONDS);
 
-        log.info("Client shut down");
+        try {
+            task.get(); // Block until the task completes or is cancelled
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("Failed to start Game Service client", e);
+        }
     }
 
     public void stop() {

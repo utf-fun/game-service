@@ -7,7 +7,7 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    maven { url = uri("https://mvn.utf.lol/releases") }
 }
 
 dependencies {
@@ -21,7 +21,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    var hermesVersion = "2.1.7"
+    var hermesVersion = "2.1.10"
 
     api("org.readutf.hermes:core:$hermesVersion")
     api("org.readutf.hermes:netty:$hermesVersion")
