@@ -2,6 +2,7 @@ package org.readutf.gameservice.common;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;
+import org.readutf.gameservice.common.packet.GameRequestPacket;
 import org.readutf.gameservice.common.packet.HeartbeatPacket;
 import org.readutf.gameservice.common.packet.ServerRegisterPacket;
 
@@ -18,7 +19,7 @@ public class SharedKryo {
         kryo.register(ArrayList.class);
         kryo.register(HeartbeatPacket.class);
         kryo.register(ServerRegisterPacket.class);
-        kryo.register(ServerRegisterPacket.class);
+        kryo.register(GameRequestPacket.class);
         kryo.register(UUID.class, new DefaultSerializers.UUIDSerializer());
 
         return kryo;

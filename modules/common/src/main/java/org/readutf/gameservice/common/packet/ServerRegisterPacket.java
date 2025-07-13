@@ -3,6 +3,7 @@ package org.readutf.gameservice.common.packet;
 
 import org.readutf.hermes.packet.Packet;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,8 +16,8 @@ public class ServerRegisterPacket extends Packet<UUID> {
     public ServerRegisterPacket(String containerId, List<String> tags, List<String> playlists) {
         super(true);
         this.containerId = containerId;
-        this.tags = tags;
-        this.playlists = playlists;
+        this.tags = new ArrayList<>(tags);
+        this.playlists = new ArrayList<>(playlists);
     }
 
     public String getContainerId() {

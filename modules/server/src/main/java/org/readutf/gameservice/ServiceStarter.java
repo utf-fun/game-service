@@ -1,13 +1,12 @@
 package org.readutf.gameservice;
 
-import com.esotericsoftware.kryo.Kryo;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.javalin.Javalin;
 import org.jetbrains.annotations.NotNull;
 import org.readutf.gameservice.api.RouteLogger;
+import org.readutf.gameservice.api.routes.GameRequestEndpoint;
 import org.readutf.gameservice.api.routes.GetServerEndpoint;
 import org.readutf.gameservice.api.routes.ListServersEndpoint;
 import org.readutf.gameservice.common.SharedKryo;
@@ -16,11 +15,12 @@ import org.readutf.gameservice.common.packet.ServerRegisterPacket;
 import org.readutf.gameservice.container.ContainerPlatform;
 import org.readutf.gameservice.container.docker.DockerContainerPlatform;
 import org.readutf.gameservice.container.kubernetes.KubernetesPlatform;
+import org.readutf.gameservice.game.GameManager;
 import org.readutf.gameservice.listeners.DiscoveryService;
-import org.readutf.gameservice.server.ServerException;
 import org.readutf.gameservice.server.ServerManager;
 import org.readutf.hermes.kryo.KryoPacketCodec;
 import org.readutf.hermes.netty.NettyServerPlatform;
+import org.readutf.hermes.packet.ChannelClosePacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,6 @@ public class ServiceStarter {
 
         String DOCKER_URL = System.getenv("DOCKER_URL");
         String KUBERNETES_URL = System.getenv("KUBERNETES_URL");
-
 
         ContainerPlatform<?> platform;
         if (DOCKER_URL != null && !DOCKER_URL.isEmpty()) {
@@ -54,18 +53,19 @@ public class ServiceStarter {
 
         NettyServerPlatform server = new NettyServerPlatform(codec);
         DiscoveryService discoveryService = new DiscoveryService(serverManager);
+        GameManager gameManager = new GameManager(serverManager, server);
 
         server.start(new InetSocketAddress("0.0.0.0", 50052));
         server.listenIgnore(HeartbeatPacket.class, discoveryService::onHeartbeat);
+        server.listenIgnore(ChannelClosePacket.class, discoveryService::onChannelClose);
         server.listen(ServerRegisterPacket.class, discoveryService::onRegister);
-
 
         Javalin.create(config -> config.showJavalinBanner = false)
                 .after(new RouteLogger())
                 .get("/api/v1/server", new ListServersEndpoint(serverManager))
                 .get("/api/v1/server/{id}", new GetServerEndpoint(serverManager))
+                .get("/api/v1/game/{playlist}", new GameRequestEndpoint(gameManager))
                 .start("0.0.0.0", 9393);
-
 
         log.info("GRPC server started on [::0]:50052");
 

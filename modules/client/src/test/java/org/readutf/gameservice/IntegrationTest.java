@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.UUID;
 
 public class IntegrationTest {
 
@@ -14,9 +15,18 @@ public class IntegrationTest {
 
     public static void main(String[] args) throws Exception {
 
-        GameServiceClient serviceClient = new GameServiceClient(new DockerResolver(), List.of("test", "integration"), () -> 0.5f);
+//        GameServiceClient serviceClient = new GameServiceClient(new DockerResolver(), List.of("test", "integration"), () -> 0.5f);
 
-        serviceClient.startBlocking(new InetSocketAddress("gameservice", 50052));
+        GameServiceClient client = GameServiceClient.builder(new DockerResolver())
+                .setTags(List.of("test", "integration"))
+                .setPlaylists(List.of("tnttag"))
+                .setRequestHandler((playlist,teams) -> {
+                    log.info("Requested game with playlist {} and teams {}", playlist, teams);
+                    return UUID.randomUUID();
+                })
+                .build();
+
+        client.startBlocking(new InetSocketAddress("gameservice", 50052));
     }
 
 }

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "org.readutf.gameservice"
-version = "1.0.13"
+version = "1.0.20"
 
 repositories {
     mavenCentral()
@@ -20,7 +20,6 @@ subprojects {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(21))
         }
-        withJavadocJar()
         withSourcesJar()
     }
 
