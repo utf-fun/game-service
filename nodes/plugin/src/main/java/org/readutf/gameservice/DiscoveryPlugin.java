@@ -13,12 +13,13 @@ import java.util.List;
 
 public class DiscoveryPlugin extends JavaPlugin {
 
-    private @NotNull final GameServiceClient serviceClient;
+//    private @NotNull final GameServiceClient serviceClient;
     private @NotNull final Thread clientThread;
 
     public DiscoveryPlugin() {
-        this.serviceClient = new GameServiceClient(getResolver(), getDiscoveryTags(), () -> 0.5f);
-        this.clientThread = new Thread(() -> serviceClient.startBlocking(new InetSocketAddress("gameservice", 50052)));
+
+        this.clientThread = new Thread(() -> {
+        });
         this.clientThread.setName("GameServiceClientThread");
         this.clientThread.setDaemon(false);
         this.clientThread.start();
@@ -51,7 +52,7 @@ public class DiscoveryPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        serviceClient.stop();
+//        serviceClient.stop();
         clientThread.interrupt();
     }
 }

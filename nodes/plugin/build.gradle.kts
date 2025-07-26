@@ -25,10 +25,9 @@ tasks.named<ShadowJar>("shadowJar") {
 dependencies {
     paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT")
 
-    implementation(project(":modules:client"))
+    implementation(project(":discovery:client"))
 
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation(libs.bundles.junit)
 }
 
 bukkitPluginYaml {

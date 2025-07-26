@@ -1,0 +1,11 @@
+meta {
+  name: get servers
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:9393/api/v1/server
+  body: none
+  auth: inherit
+}

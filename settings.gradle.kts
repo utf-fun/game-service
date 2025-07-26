@@ -4,10 +4,13 @@ plugins {
 
 rootProject.name = "game-service"
 include(
-    "modules:common",
-    "modules:api",
-    "modules:server",
-    "modules:client",
+    "discovery:common",
+    "discovery:api",
+    "discovery:server",
+    "discovery:client",
     "nodes:plugin",
     "nodes:proxy",
+    "nodes:lobby",
+    "game:core",
+    "game:tnttag",
 )

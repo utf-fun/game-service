@@ -1,0 +1,15 @@
+meta {
+  name: request game
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:9393/api/v1/game/tnttag
+  body: json
+  auth: inherit
+}
+
+body:json {
+  [["02761470-270f-4f60-84dc-efa51b93fc60"]]
+}

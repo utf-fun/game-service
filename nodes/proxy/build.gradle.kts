@@ -23,7 +23,7 @@ dependencies {
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 
-    implementation(project(":modules:api"))
+    implementation(project(":discovery:api"))
 }
 
 tasks {
@@ -36,7 +36,7 @@ tasks.named<ShadowJar>("shadowJar") {
     archiveFileName.set("discovery-velocity.jar")
 }
 
-tasks.build {
+tasks.jar {
     dependsOn("createProperties")
 }
 
@@ -45,14 +45,12 @@ tasks.test {
 }
 
 tasks.register("createProperties") {
-    doLast {
-        val propertiesFile = file("$buildDir/resources/main/version.properties")
-        propertiesFile.parentFile.mkdirs()
-        propertiesFile.writer().use { writer ->
-            val properties = Properties()
-            properties["version"] = project.version.toString()
-            properties["buildTime"] = System.currentTimeMillis().toString()
-            properties.store(writer, null)
-        }
+    val propertiesFile = file("$buildDir/resources/main/version.properties")
+    propertiesFile.parentFile.mkdirs()
+    propertiesFile.writer().use { writer ->
+        val properties = Properties()
+        properties["version"] = project.version.toString()
+        properties["buildTime"] = System.currentTimeMillis().toString()
+        properties.store(writer, null)
     }
 }
