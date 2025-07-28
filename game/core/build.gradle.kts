@@ -7,6 +7,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven { url = uri("https://repo.panda-lang.org/releases") }
     maven { url = uri("https://mvn.utf.lol/releases") }
 }

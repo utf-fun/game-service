@@ -30,13 +30,21 @@ public class TagGame extends Game<Instance, Arena<Instance, TagPositions>, GameT
      * @param eventManager Event system for the game
      * @param teamSelector Team assignment strategy
      */
-    public TagGame(@NotNull GamePlatform<Instance> platform, @NotNull GameScheduler scheduler, @NotNull GameEventManager eventManager, @NotNull TeamSelector<GameTeam> teamSelector) throws EventDispatchException {
+    public TagGame(
+            @NotNull GamePlatform<Instance> platform,
+            @NotNull GameScheduler scheduler,
+            @NotNull GameEventManager eventManager,
+            @NotNull TeamSelector<GameTeam> teamSelector)
+            throws EventDispatchException {
         super(platform, scheduler, eventManager, teamSelector);
 
-        registerStage(WarmupStage::new);
+        registerStage((game, previousStage) -> new WarmupStage(
+                game, previousStage, 2, 5_000, 0, new long[] {5_000L, 4_000L, 3_000L, 2_000L, 1_000L}));
+
         registerStage((game1, previousStage) -> new FightingStage(this, previousStage, 1));
 
-        this.spectatorSystem = addSystem(new SpectatorSystem(this, new MinestomSpectator(), new VisibilitySystem(this, new MinestomVisibilityPlatform())));
+        this.spectatorSystem = addSystem(new SpectatorSystem(
+                this, new MinestomSpectator(), new VisibilitySystem(this, new MinestomVisibilityPlatform())));
     }
 
     public @NotNull SpectatorSystem getSpectatorSystem() {

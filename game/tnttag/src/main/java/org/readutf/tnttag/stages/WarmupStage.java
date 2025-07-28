@@ -12,6 +12,7 @@ import org.readutf.engine.Game;
 import org.readutf.engine.arena.Arena;
 import org.readutf.engine.feature.spawning.SpawningSystem;
 import org.readutf.engine.stage.Stage;
+import org.readutf.engine.stage.StageCreator;
 import org.readutf.engine.task.impl.RepeatingGameTask;
 import org.readutf.engine.team.GameTeam;
 import org.readutf.tnttag.positions.TagPositions;
@@ -24,19 +25,25 @@ import org.slf4j.LoggerFactory;
  * Waits for enough players to join, then starts the game after a countdown.
  */
 public class WarmupStage extends Stage<Instance, Arena<Instance, TagPositions>, GameTeam> {
+
+    private static StageCreator<Instance, Arena<Instance, TagPositions>, GameTeam> defaultCreator =
+            (game1, previousStage1) -> new WarmupStage(
+                    game1, previousStage1, 2, 60_000, 0, new long[] {5_000L, 4_000L, 3_000L, 2_000L, 1_000L});
+
     private static final Logger logger = LoggerFactory.getLogger(WarmupStage.class);
 
     // Minimum players required to start the game
-    public static final int TARGET_PLAYERS = 2;
+    public final int targetPlayers;
     // Warmup countdown time in milliseconds (0 = instant)
-    public static final long WARMUP_TIME = 0L;
+    public final long warmupTime;
     // Intervals (in ms) at which to notify players of the countdown
-    public static final long[] WARMUP_NOTIFY_INTERVALS = new long[]{
-            5_000L, 4_000L, 3_000L, 2_000L, 1_000L
-    };
+    public final long[] warmupNotifyIntervals;
 
     // Time when the correct player count was first reached
     private long correctPlayersTime = 0L;
+
+    // Maximum amount of time to wait before cancelling the game.
+    private long maxWait;
 
     /**
      * Constructs a new stage associated with the given game and an optional previous stage.
@@ -44,9 +51,20 @@ public class WarmupStage extends Stage<Instance, Arena<Instance, TagPositions>, 
      * @param game          the game instance this stage belongs to
      * @param previousStage the previous stage, or null if this is the first stage
      */
-    public WarmupStage(Game<Instance, Arena<Instance, TagPositions>, GameTeam> game, Stage<Instance, Arena<Instance, TagPositions>, GameTeam> previousStage) {
+    public WarmupStage(
+            Game<Instance, Arena<Instance, TagPositions>, GameTeam> game,
+            Stage<Instance, Arena<Instance, TagPositions>, GameTeam> previousStage,
+            int targetPlayers,
+            int maxWait,
+            long warmupTime,
+            long[] warmupNotifyIntervals) {
         super(game, previousStage);
-        addSystem(new SpawningSystem.StageStart(game, new TagSpawning(getGame().getArena().getFormat())));
+        this.targetPlayers = targetPlayers;
+        this.warmupTime = warmupTime;
+        this.warmupNotifyIntervals = warmupNotifyIntervals;
+        this.maxWait = maxWait;
+        addSystem(new SpawningSystem.StageStart(
+                game, new TagSpawning(getGame().getArena().getFormat())));
     }
 
     @Override
@@ -63,7 +81,7 @@ public class WarmupStage extends Stage<Instance, Arena<Instance, TagPositions>, 
 
         public AwaitingPlayersTask() {
             super(0, 1);
-            for (long interval : WARMUP_NOTIFY_INTERVALS) {
+            for (long interval : warmupNotifyIntervals) {
                 intervals.add(interval);
             }
             // Sort in descending order for countdown
@@ -75,12 +93,22 @@ public class WarmupStage extends Stage<Instance, Arena<Instance, TagPositions>, 
 
             int currentPlayers = game.getPlayers().size();
 
+            if (System.currentTimeMillis() - startTime > maxWait) {
+                game.messageAll(Component.text("Game cancelled due to timeout, not enough players joined."));
+                try {
+                    game.end();
+                } catch (org.readutf.engine.GameException e) {
+                    logger.error(e.getMessage(), e);
+                }
+                return;
+            }
+
             // Not enough players
-            if (correctPlayersTime != 0L && currentPlayers < TARGET_PLAYERS) {
+            if (correctPlayersTime != 0L && currentPlayers < targetPlayers) {
                 correctPlayersTime = 0L; // Reset
                 game.messageAll(Component.text("Not enough players to start the game, waiting for more..."));
                 intervals.clear();
-                for (long interval : WARMUP_NOTIFY_INTERVALS) {
+                for (long interval : warmupNotifyIntervals) {
                     intervals.add(interval);
                 }
                 intervals.sort(Collections.reverseOrder());
@@ -88,11 +116,9 @@ public class WarmupStage extends Stage<Instance, Arena<Instance, TagPositions>, 
             }
 
             // Just reached required player count
-            if (correctPlayersTime == 0L && currentPlayers >= TARGET_PLAYERS) {
+            if (correctPlayersTime == 0L && currentPlayers >= targetPlayers) {
                 correctPlayersTime = System.currentTimeMillis();
-                game.messageAll(Component.text(
-                        "Game will start in " + formatMillis(WARMUP_TIME) + " seconds!"
-                ));
+                game.messageAll(Component.text("Game will start in " + formatMillis(warmupTime) + " seconds!"));
                 return;
             }
 
@@ -106,16 +132,14 @@ public class WarmupStage extends Stage<Instance, Arena<Instance, TagPositions>, 
             List<Long> toRemove = new ArrayList<>();
             for (Long interval : intervals) {
                 if (interval <= period) {
-                    game.messageAll(Component.text(
-                            "Game will start in " + formatMillis(interval) + " seconds!"
-                    ));
+                    game.messageAll(Component.text("Game will start in " + formatMillis(interval) + " seconds!"));
                     toRemove.add(interval);
                 }
             }
             intervals.removeAll(toRemove);
 
             // Countdown finished, start game
-            if (correctPlayersTime != 0L && System.currentTimeMillis() - correctPlayersTime >= WARMUP_TIME) {
+            if (correctPlayersTime != 0L && System.currentTimeMillis() - correctPlayersTime >= warmupTime) {
                 game.messageAll(Component.text("Game started!"));
                 try {
                     endStage();
@@ -123,6 +147,19 @@ public class WarmupStage extends Stage<Instance, Arena<Instance, TagPositions>, 
                     logger.error(e.getMessage(), e);
                 }
             }
+        }
+
+        @Override
+        public String toString() {
+            return "AwaitingPlayersTask{" +
+                    "intervals=" + intervals +
+                    ", lastWaitingNotify=" + lastWaitingNotify +
+                    ", delay=" + delay +
+                    ", period=" + period +
+                    ", lastTick=" + lastTick +
+                    ", startTime=" + startTime +
+                    ", markedForRemoval=" + isMarkedForRemoval() +
+                    '}';
         }
     }
 
