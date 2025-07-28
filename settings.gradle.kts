@@ -3,6 +3,7 @@ plugins {
 }
 
 rootProject.name = "game-service"
+
 include(
     "discovery:common",
     "discovery:api",
@@ -13,4 +14,7 @@ include(
     "nodes:lobby",
     "game:core",
     "game:tnttag",
+    "matchmaker:server",
 )
+
+include("matchmaker:matchmaker-client")

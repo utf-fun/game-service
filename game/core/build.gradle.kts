@@ -24,7 +24,7 @@ dependencies {
     api(project(":discovery:client"))
 
     testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
+//    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.test {

@@ -24,7 +24,7 @@ import java.net.URI;
 public class DefaultArenaManager {
 
     private static final BuildMetaStore metaStore = SQLMetaStore.createMetaStore(getDatasource());
-    private static final BuildSchematicStore schematicStore = new S3BuildSchematicStore(getAwsClient(), "builds");
+    private static final BuildSchematicStore schematicStore = new S3BuildSchematicStore(getAwsClient(), "utf-builds");
 
     @Contract(" -> new")
     public static @NotNull ArenaManager<Instance> createArenaManager() {
@@ -40,8 +40,6 @@ public class DefaultArenaManager {
         String secretKey = System.getenv("AWS_SECRET_KEY");
         String endpoint = System.getenv("AWS_ENDPOINT");
         String region = System.getenv("AWS_REGION");
-
-        System.out.println("Using AWS credentials: " + accessKey + ", endpoint: " + endpoint + ", region: " + region);
 
         boolean pathStyleAccessEnabled = System.getenv("AWS_PATH_STYLE_ACCESS_ENABLED") != null;
         if (accessKey == null || secretKey == null) {
@@ -66,7 +64,7 @@ public class DefaultArenaManager {
     }
 
     private static @NotNull HikariDataSource getDatasource() {
-        @NotNull String databaseUrl = System.getenv().getOrDefault("DATABASE_URL", "");
+        @NotNull String databaseUrl = System.getenv().getOrDefault("DATABASE_HOST", "");
         @NotNull String databasePort = System.getenv().getOrDefault("DATABASE_PORT", "");
         @NotNull String databaseName = System.getenv().getOrDefault("DATABASE_NAME", "");
         @NotNull String databaseUser = System.getenv().getOrDefault("DATABASE_USER", "");

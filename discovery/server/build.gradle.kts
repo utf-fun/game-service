@@ -28,7 +28,7 @@ dependencies {
     implementation(libs.kubernetes.client)
 
     testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
+//    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 application {
@@ -37,9 +37,6 @@ application {
 
 tasks.jar {
     archiveFileName = "game-service.jar"
-}
-
-tasks.named("installDist") {
     dependsOn("createProperties")
 }
 

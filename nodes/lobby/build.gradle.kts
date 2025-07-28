@@ -1,7 +1,7 @@
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "2.1.0"
+    java
     application
     id("com.bmuschko.docker-java-application") version "9.4.0"
 }
@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
+//    testRuntimeOnly(libs.junit.platform.launcher)
 
     implementation(libs.minestom)
     implementation(libs.schem)
@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.creative.serializer.minecraft)
     implementation(libs.creative.server)
 
+    implementation(libs.adventure.minimessage)
 
     implementation(libs.bundles.tinylog)
 }
@@ -67,7 +68,4 @@ tasks.register("createProperties") {
 
 tasks.test {
     useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(21)
 }

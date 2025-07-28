@@ -3,15 +3,9 @@ package org.readutf.gameservice.common;
 import java.util.List;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.readutf.gameservice.common.container.ContainerInfo;
 import org.readutf.gameservice.common.container.NetworkSettings;
 
-@Getter
-@Setter
 public class Server {
 
     private @NotNull final UUID serverId;
@@ -35,5 +29,33 @@ public class Server {
         this.heartbeat = heartbeat;
         this.tags = tags;
         this.playlists = playlists;
+    }
+
+    public @NotNull UUID getServerId() {
+        return serverId;
+    }
+
+    public @NotNull String getContainerId() {
+        return containerId;
+    }
+
+    public @NotNull NetworkSettings getNetworkSettings() {
+        return networkSettings;
+    }
+
+    public @NotNull Heartbeat getHeartbeat() {
+        return heartbeat;
+    }
+
+    public @NotNull List<String> getTags() {
+        return tags;
+    }
+
+    public @NotNull List<String> getPlaylists() {
+        return playlists;
+    }
+
+    public void setHeartbeat(@NotNull Heartbeat heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }

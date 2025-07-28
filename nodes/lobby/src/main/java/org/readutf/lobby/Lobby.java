@@ -36,6 +36,7 @@ import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
 import software.amazon.awssdk.services.s3.S3Configuration;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.List;
@@ -75,7 +76,7 @@ public class Lobby {
                 .build();
 
         new Thread(() -> {
-            client.startBlocking(new InetSocketAddress(System.getenv("DISOVERY_HOST"), 50052));
+            client.startBlocking(new InetSocketAddress(System.getenv("DISCOVERY_HOST"), 50052));
         }).start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -100,8 +101,6 @@ public class Lobby {
         String secretKey = System.getenv("AWS_SECRET_KEY");
         String endpoint = System.getenv("AWS_ENDPOINT");
         String region = System.getenv("AWS_REGION");
-
-        System.out.println("Using AWS credentials: " + accessKey + ", endpoint: " + endpoint + ", region: " + region);
 
         boolean pathStyleAccessEnabled = System.getenv("AWS_PATH_STYLE_ACCESS_ENABLED") != null;
         if (accessKey == null || secretKey == null) {
@@ -135,8 +134,6 @@ public class Lobby {
         HikariConfig hikariConfig = new HikariConfig();
         String uri = "jdbc:postgresql://" + databaseUrl + ":" + databasePort + "/" + databaseName;
 
-        System.out.println(uri);
-
         hikariConfig.setJdbcUrl(uri);
         if (!databaseUser.isEmpty() && !databasePassword.isEmpty()) {
             hikariConfig.setUsername(databaseUser);
@@ -150,10 +147,13 @@ public class Lobby {
     public static void main(String[] args) throws BuildFormatException, IOException {
 
         Properties properties = new Properties();
-        properties.load(Lobby.class.getClassLoader().getResourceAsStream("version.properties"));
+        InputStream resourceAsStream = Lobby.class.getClassLoader().getResourceAsStream("version.properties");
+        if(resourceAsStream != null) {
+            properties.load(resourceAsStream);
 
-        log.info("Version: {}", properties.getProperty("version"));
-        log.info("Build Time: {}", properties.getProperty("buildTime"));
+            log.info("Version: {}", properties.getProperty("version"));
+            log.info("Build Time: {}", properties.getProperty("buildTime"));
+        }
 
         new Lobby();
     }

@@ -45,7 +45,7 @@ public class TagGameServer extends MinigameServer {
     }
 
     @Override
-    public UUID start(List<List<UUID>> teams) throws GameException {
+    public UUID start(@NotNull List<List<UUID>> teams) throws GameException {
 
         List<GameTeam> gameTeams = IntStream.range(0, teams.size())
                 .mapToObj(i -> new GameTeam(String.valueOf(i)))

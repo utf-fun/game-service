@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
+//    testRuntimeOnly(libs.junit.platform.launcher)
 
     implementation(libs.bundles.arena)
     implementation(project(":game:core"))

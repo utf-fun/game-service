@@ -5,10 +5,10 @@ docker = "3.4.1"
 javalin = "6.6.0"
 jackson = "2.19.0"
 retrofit = "3.0.0"
-junit = "5.10.0"
+junit = "5.7.1"
 hermes = "2.1.10"
 kryo = "5.6.2"
-minestom = "2025.07.20-1.21.8"
+minestom = "2025.07.26-1.21.8"
 minestom-pvp = "56a831b41c"
 schem = "e2fd8df4a3"
 buildformat = "1.0.19"
@@ -63,11 +63,6 @@ tinylog = [
     "tinylog-api",
     "tinylog-impl",
     "slf4j-tinylog",
-]
-
-junit = [
-    "junit-jupiter",
-    "junit-platform-launcher",
 ]
 
 hermes = [

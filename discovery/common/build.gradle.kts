@@ -1,6 +1,5 @@
 plugins {
     `java-library`
-    id("io.freefair.lombok") version "8.13.1"
 }
 
 
@@ -12,7 +11,7 @@ repositories {
 
 dependencies {
     testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
+//    testRuntimeOnly(libs.junit.platform.launcher)
 
     api(libs.jetbrains.annotations)
     api(libs.bundles.hermes)

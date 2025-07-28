@@ -27,7 +27,8 @@ dependencies {
 
     implementation(project(":discovery:client"))
 
-    testImplementation(libs.bundles.junit)
+    testImplementation(libs.junit.jupiter)
+//    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 bukkitPluginYaml {

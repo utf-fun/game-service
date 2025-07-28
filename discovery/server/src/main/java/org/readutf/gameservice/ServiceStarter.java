@@ -1,5 +1,6 @@
 package org.readutf.gameservice;
 
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -83,12 +84,15 @@ public class ServiceStarter {
 
     public static void main(String[] args) throws Exception {
         Properties properties = new Properties();
-        properties.load(ServiceStarter.class.getClassLoader().getResourceAsStream("version.properties"));
 
-        String version = properties.getProperty("version");
-        String buildTime = properties.getProperty("buildTime");
+        InputStream versionStream = ServiceStarter.class.getClassLoader().getResourceAsStream("version.properties");
+        if(versionStream != null) {
+            properties.load(versionStream);
+            String version = properties.getProperty("version");
+            String buildTime = properties.getProperty("buildTime");
 
-        log.info("Starting server... (version: {}, time: {}, commit: {})", version, buildTime, "TODO");
+            log.info("Starting server... (version: {}, time: {}, commit: {})", version, buildTime, "TODO");
+        }
 
         new ServiceStarter();
     }

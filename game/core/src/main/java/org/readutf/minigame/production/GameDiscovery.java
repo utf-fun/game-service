@@ -61,6 +61,11 @@ public class GameDiscovery implements GameRequestHandler {
         log.info("Requesting game for playlist: {} with teams: {}", playlist, list);
 
         if (!minigameServer.getPlaylist().equalsIgnoreCase(playlist)) return null;
-        return minigameServer.start(list);
+        try {
+            return minigameServer.start(list);
+        } catch (Exception e) {
+            log.error("Failed to start minigame server", e);
+            throw e;
+        }
     }
 }
