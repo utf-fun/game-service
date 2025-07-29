@@ -36,6 +36,8 @@ public class PluginMessageListener {
             return;
         }
 
+        System.out.println(event.getIdentifier().toString());
+
         if (event.getIdentifier() == IDENTIFIER) {
             changeServer(event, player);
         }

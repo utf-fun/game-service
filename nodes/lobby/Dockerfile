@@ -6,10 +6,10 @@ WORKDIR /app
 EXPOSE 25565
 
 # Copy the application distribution
-COPY build/install/Lobby ./
+COPY build/install/lobby ./
 
 # Make the startup script executable
-RUN chmod +x ./bin/Lobby
+RUN chmod +x ./bin/lobby
 
 # Set the entry point to run the application
-ENTRYPOINT ["./bin/Lobby"]
+ENTRYPOINT ["./bin/lobby"]
