@@ -44,6 +44,7 @@ public class DiscoveryProxy {
     public void onInit(ProxyInitializeEvent event) {
         logger.info("Initializing DiscoveryProxy...");
 
+        proxy.getChannelRegistrar().register(PluginMessageListener.IDENTIFIER);
         proxy.getEventManager().register(this, new PreConnectListener(this, gameServiceApi));
         proxy.getEventManager().register(this, new PluginMessageListener(this, gameServiceApi));
     }

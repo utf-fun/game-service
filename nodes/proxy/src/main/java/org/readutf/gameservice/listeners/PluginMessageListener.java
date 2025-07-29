@@ -3,6 +3,7 @@ package org.readutf.gameservice.listeners;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.jetbrains.annotations.NotNull;
@@ -31,12 +32,12 @@ public class PluginMessageListener {
 
     @Subscribe
     public void onMessage(PluginMessageEvent event) {
-        if (!(event.getSource() instanceof Player player)) {
+        if (!(event.getSource() instanceof ServerConnection serverConnection)) {
             log.warn("Received switch server message from non-player source: {}", event.getSource());
             return;
         }
+        Player player = serverConnection.getPlayer();
 
-        System.out.println(event.getIdentifier().toString());
 
         if (event.getIdentifier() == IDENTIFIER) {
             changeServer(event, player);
@@ -45,22 +46,28 @@ public class PluginMessageListener {
 
     private void changeServer(PluginMessageEvent event, Player player) {
 
-        System.out.println(new String(event.getData()));
 
-        //        UUID serverId = UUID.fromString(new String(event.getData()));
-        //
-        //        @Nullable RegisteredServer proxyServer = proxy.getServer(serverId);
-        //        if (proxyServer != null) {
-        //            player.createConnectionRequest(proxyServer).fireAndForget();
-        //        }
-        //
-        //        try {
-        //            Server server = gameServiceApi.getServer(serverId);
-        //            RegisteredServer newServer = proxy.getServer(server);
-        //
-        //            player.createConnectionRequest(newServer).fireAndForget();
-        //        } catch (GameServiceException e) {
-        //            log.error("Failed to fetch server {} from Game Service: {}", serverId, e.getMessage());
-        //        }
+
+        UUID serverId;
+        try {
+            serverId = UUID.fromString(new String(event.getData()));
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid server ID: {}", event.getData());
+            return;
+        }
+
+        @Nullable RegisteredServer proxyServer = proxy.getServer(serverId);
+        if (proxyServer != null) {
+            player.createConnectionRequest(proxyServer).fireAndForget();
+        }
+
+        try {
+            Server server = gameServiceApi.getServer(serverId);
+            RegisteredServer newServer = proxy.getServer(server);
+
+            player.createConnectionRequest(newServer).fireAndForget();
+        } catch (GameServiceException e) {
+            log.error("Failed to fetch server {} from Game Service: {}", serverId, e.getMessage());
+        }
     }
 }

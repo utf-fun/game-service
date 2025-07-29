@@ -13,9 +13,10 @@ public class DevCommand extends Command {
         super("dev");
 
         setDefaultExecutor((sender, command) -> {
-            sender.sendMessage("test");
+            sender.sendMessage("test123");
             log.info("Dev command executed");
             if(sender instanceof Player player) {
+                player.sendMessage("sending message");
                 player.sendPluginMessage("custom:switch_server", "test");
             }
         });
