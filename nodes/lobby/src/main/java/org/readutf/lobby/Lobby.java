@@ -22,6 +22,7 @@ import org.readutf.gameservice.client.GameServiceClient;
 import org.readutf.gameservice.client.platform.KubernetesResolver;
 import org.readutf.lobby.build.LobbyBuild;
 import org.readutf.lobby.build.LobbyBuildManager;
+import org.readutf.lobby.commands.DevCommand;
 import org.readutf.lobby.commands.GamemodeCommand;
 import org.readutf.lobby.listeners.AsyncConfigListener;
 import org.readutf.lobby.listeners.BuildPrevention;
@@ -59,9 +60,7 @@ public class Lobby {
         LobbyBuildManager buildManager = new LobbyBuildManager(metaStore, schematicStore);
         LobbyBuild lobbyBuild = buildManager.loadBuild();
 
-        MinecraftServer.getCommandManager().register(
-                new GamemodeCommand()
-        );
+        MinecraftServer.getCommandManager().register(new GamemodeCommand(), new DevCommand());
 
         server.start("0.0.0.0", 25565);
 

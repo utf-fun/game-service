@@ -8,6 +8,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import org.readutf.gameservice.DiscoveryProxy;
 import org.readutf.gameservice.GameServiceApi;
 import org.readutf.gameservice.common.Server;
 import org.readutf.gameservice.exceptions.GameServiceException;
@@ -22,18 +23,13 @@ public class PreConnectListener {
 
     private static final Logger logger = LoggerFactory.getLogger(PreConnectListener.class);
 
-    private final @NotNull ProxyServer proxy;
+    private final @NotNull DiscoveryProxy proxy;
     private final @NotNull GameServiceApi gameServiceApi;
-    private final @NotNull HashMap<UUID, RegisteredServer> serverCache;
-    private final @NotNull AtomicInteger serverCounter;
 
-    public PreConnectListener(@NotNull ProxyServer proxy, @NotNull GameServiceApi gameServiceApi) {
+    public PreConnectListener(@NotNull DiscoveryProxy proxy, @NotNull GameServiceApi gameServiceApi) {
         this.proxy = proxy;
         this.gameServiceApi = gameServiceApi;
-        this.serverCache = new HashMap<>();
-        this.serverCounter = new AtomicInteger(0);
     }
-
 
     @Subscribe
     public void onPreJoin(@NotNull PlayerChooseInitialServerEvent event) {
@@ -58,23 +54,7 @@ public class PreConnectListener {
         } else {
             Server server = bestServer.get();
             logger.info("Redirecting player to server: {}", server.getServerId());
-            event.setInitialServer(getServer(server));
+            event.setInitialServer(proxy.getServer(server));
         }
-    }
-
-    public RegisteredServer getServer(Server server) {
-        RegisteredServer cachedServer = serverCache.get(server.getServerId());
-        if (cachedServer != null) {
-            return cachedServer;
-        }
-
-        String hostname = server.getNetworkSettings().hostname();
-
-        ServerInfo serverInfo =
-                new ServerInfo("dynamic-" + serverCounter.incrementAndGet(), new InetSocketAddress(hostname, 25565));
-
-        RegisteredServer registeredServer = proxy.registerServer(serverInfo);
-        serverCache.put(server.getServerId(), registeredServer);
-        return registeredServer;
     }
 }

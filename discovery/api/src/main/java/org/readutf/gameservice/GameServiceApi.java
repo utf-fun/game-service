@@ -3,6 +3,7 @@ package org.readutf.gameservice;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.readutf.gameservice.common.Server;
 import org.readutf.gameservice.exceptions.GameServiceException;
 import retrofit2.Call;
@@ -13,6 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class GameServiceApi {
 
@@ -31,6 +33,16 @@ public class GameServiceApi {
                 .build();
 
         this.serverService = retrofit.create(ServerService.class);
+
+        try {
+            if(serverService.getServers().execute().isSuccessful()) {
+                System.out.println("Game Service API initialized successfully.");
+            } else {
+                throw new RuntimeException("Failed to initialize Game Service API: " + serverService.getServers().execute().message());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public @NotNull List<Server> getServers() throws GameServiceException {
@@ -49,6 +61,23 @@ public class GameServiceApi {
         List<Server> servers = serversResponse.body();
 
         return servers != null ? Collections.unmodifiableList(servers) : List.of();
+    }
+
+    public Server getServer(UUID serverId) throws GameServiceException {
+        Call<Server> serverRequest = serverService.getServerByName(serverId.toString());
+
+        Response<Server> serverResponse;
+        try {
+            serverResponse = serverRequest.execute();
+        } catch (IOException e) {
+            throw new GameServiceException("An IO exception occurred while reaching the game service.", e);
+        }
+        if (!serverResponse.isSuccessful()) {
+            throw new GameServiceException(
+                    "An error occurred while fetching the server: " + serverResponse.message());
+        }
+
+        return serverResponse.body();
     }
 
     public @NotNull List<Server> getServersByTag(@NotNull String tag) throws GameServiceException {
