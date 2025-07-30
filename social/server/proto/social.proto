@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package statusservice;
+
+// Message representing the status of a server.
+message Status {
+  string server_id = 1;
+  repeated string players = 2;
+}
+
+message Empty {}
+
+// Request message for querying online status by UUID.
+message IsOnlineRequest {
+  string uuid = 1;
+}
+
+// Response message for online status.
+message IsOnlineResponse {
+  bool is_online = 1;
+}
+
+// The service definition.
+service StatusService {
+  // Returns the status of a server.
+  rpc UpdateStatus (Status) returns (Empty);
+
+  // Checks if the player with the given UUID is online.
+  rpc IsOnline (IsOnlineRequest) returns (IsOnlineResponse);
+}

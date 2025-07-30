@@ -15,6 +15,9 @@ include(
     "game:core",
     "game:tnttag",
     "matchmaker:server",
+    "social:server",
 )
 
 include("matchmaker:matchmaker-client")
+include("social:server")
+include("social:common")
