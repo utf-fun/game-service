@@ -34,7 +34,7 @@ public class ServerManager {
         this.serverChannels = new ConcurrentHashMap<>();
     }
 
-    public UUID registerServer(HermesChannel hermesChannel, String shortContainerId, List<String> tags, List<String> playlists) throws ServerException {
+    public void registerServer(UUID serverId, HermesChannel hermesChannel, String shortContainerId, List<String> tags, List<String> playlists) throws ServerException {
         @Nullable ContainerInfo containerInfo = containerPlatform.getContainerInfo(shortContainerId);
         if (containerInfo == null) {
             logger.error("Network settings for container ID {} not found.", shortContainerId);
@@ -45,8 +45,12 @@ public class ServerManager {
             throw new ServerException("Server with container ID " + shortContainerId + " already exists.");
         }
 
+        if (getServerById(serverId) != null) {
+            throw new ServerException("Server with ID " + serverId + " already exists.");
+        }
+
         Server server = new Server(
-                UUID.randomUUID(),
+                serverId,
                 containerInfo.getContainerId(),
                 containerInfo.getNetworkSettings(),
                 new Heartbeat(System.currentTimeMillis(), 0),
@@ -57,7 +61,6 @@ public class ServerManager {
         serverChannels.put(server.getServerId(), hermesChannel);
 
         logger.info("Registering server '{}' (Tags: {}, Playlists: {})", shortContainerId, String.join(", ", tags), String.join(", ", playlists));
-        return server.getServerId();
     }
 
     public void unregisterServer(@NotNull UUID serverId) {

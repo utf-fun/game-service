@@ -14,10 +14,9 @@ include(
     "nodes:lobby",
     "game:core",
     "game:tnttag",
-    "matchmaker:server",
+    "matchmaker:client",
+    "social:client",
     "social:server",
+    "social:common",
 )
-
-include("matchmaker:matchmaker-client")
-include("social:server")
-include("social:common")
+include("social:client")

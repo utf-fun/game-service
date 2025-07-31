@@ -18,6 +18,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 public class GameServiceClient {
@@ -44,6 +45,8 @@ public class GameServiceClient {
     private final List<@NotNull String> tags;
 
     private final List<@NotNull String> playlists;
+
+    private final UUID serverId = UUID.randomUUID();
 
     private GameServiceClient(
             @NotNull ContainerResolver containerResolver,
@@ -74,8 +77,8 @@ public class GameServiceClient {
 
                         log.info("Connected to Game Service at {}", address);
 
-                        nettyClient.sendPacket(
-                                new ServerRegisterPacket(containerResolver.getContainerId(), tags, playlists));
+                        UUID serverId = nettyClient.sendResponsePacket(
+                                new ServerRegisterPacket(this.serverId, containerResolver.getContainerId(), tags, playlists), UUID.class).join();
 
                         nettyClient.listen(GameRequestPacket.class, (hermesChannel, packet) -> {
                             log.info(
@@ -108,6 +111,10 @@ public class GameServiceClient {
         if (nettyClient != null) {
             nettyClient.shutdown();
         }
+    }
+
+    public UUID getServerId() {
+        return serverId;
     }
 
     public static Builder builder(@NotNull ContainerResolver containerResolver) {

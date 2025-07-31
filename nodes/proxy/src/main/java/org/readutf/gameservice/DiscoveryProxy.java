@@ -12,11 +12,12 @@ import org.jetbrains.annotations.Nullable;
 import org.readutf.gameservice.common.Server;
 import org.readutf.gameservice.listeners.PluginMessageListener;
 import org.readutf.gameservice.listeners.PreConnectListener;
+import org.readutf.gameservice.listeners.SessionListeners;
+import org.readutf.social.SocialClient;
 import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,6 +29,7 @@ public class DiscoveryProxy {
     private final GameServiceApi gameServiceApi;
     private final @NotNull HashMap<UUID, RegisteredServer> serverCache;
     private final @NotNull AtomicInteger serverCounter;
+    private final @NotNull SocialClient socialClient;
 
     @Inject
     public DiscoveryProxy(ProxyServer proxy, Logger logger) {
@@ -36,6 +38,7 @@ public class DiscoveryProxy {
         this.gameServiceApi = new GameServiceApi(System.getenv("GAME_SERVICE_URL"));
         this.serverCache = new HashMap<>();
         this.serverCounter = new AtomicInteger(0);
+        this.socialClient = new SocialClient(System.getenv("SOCIAL_SERVICE_HOST"));
 
         logger.info("DiscoveryProxy initialized with Game Service URL: {}", System.getenv("GAME_SERVICE_URL"));
     }
@@ -47,6 +50,7 @@ public class DiscoveryProxy {
         proxy.getChannelRegistrar().register(PluginMessageListener.IDENTIFIER);
         proxy.getEventManager().register(this, new PreConnectListener(this, gameServiceApi));
         proxy.getEventManager().register(this, new PluginMessageListener(this, gameServiceApi));
+        proxy.getEventManager().register(this, new SessionListeners(socialClient));
     }
 
     public @Nullable RegisteredServer getServer(@NotNull UUID serverId) {

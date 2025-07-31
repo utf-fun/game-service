@@ -3,9 +3,6 @@ package org.readutf.lobby;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
@@ -55,7 +52,7 @@ public class Lobby {
         S3AsyncClient s3Client = getAwsClient();
 
         BuildMetaStore metaStore = SQLMetaStore.createMetaStore(dataSource);
-        BuildSchematicStore schematicStore = new S3BuildSchematicStore(s3Client, "utf-builds");
+        BuildSchematicStore schematicStore = new S3BuildSchematicStore(s3Client, System.getenv("AWS_BUCKET"));
 
         LobbyBuildManager buildManager = new LobbyBuildManager(metaStore, schematicStore);
         LobbyBuild lobbyBuild = buildManager.loadBuild();
@@ -73,6 +70,8 @@ public class Lobby {
                 .setCapacitySupplier(() -> MinecraftServer.getConnectionManager().getOnlinePlayers().size() / 500f)
                 .setTags(List.of("lobby", "main-lobby"))
                 .build();
+
+
 
         new Thread(() -> {
             client.startBlocking(new InetSocketAddress(System.getenv("DISCOVERY_HOST"), 50052));
@@ -100,6 +99,7 @@ public class Lobby {
         String secretKey = System.getenv("AWS_SECRET_KEY");
         String endpoint = System.getenv("AWS_ENDPOINT");
         String region = System.getenv("AWS_REGION");
+        String path = System.getenv("AWS_REGION");
 
         boolean pathStyleAccessEnabled = System.getenv("AWS_PATH_STYLE_ACCESS_ENABLED") != null;
         if (accessKey == null || secretKey == null) {

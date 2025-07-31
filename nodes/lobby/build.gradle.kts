@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.postgresql)
 
     implementation(project(":discovery:client"))
+
     implementation(libs.ui.toolkit)
 
     implementation(libs.creative.api)

@@ -26,8 +26,10 @@ public class DiscoveryService {
     }
 
     public UUID onRegister(HermesChannel channel, ServerRegisterPacket packet) throws ServerException {
-        UUID serverId =
-                serverManager.registerServer(channel, packet.getContainerId(), packet.getTags(), packet.getPlaylists());
+
+        UUID serverId = packet.getPreviousId() == null ? UUID.randomUUID() : packet.getPreviousId();
+
+        serverManager.registerServer(serverId, channel, packet.getContainerId(), packet.getTags(), packet.getPlaylists());
         channelToServerIdMap.put(channel, serverId);
         return serverId;
     }

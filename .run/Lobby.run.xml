@@ -1,0 +1,29 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Lobby" type="Application" factoryName="Application" nameIsGenerated="true">
+    <envs>
+      <env name="AWS_ACCESS_KEY" value="minio_access_key" />
+      <env name="AWS_BUCKET" value="builds" />
+      <env name="AWS_ENDPOINT" value="http://minio:9000" />
+      <env name="AWS_PATH_STYLE_ACCESS_ENABLED" value="true" />
+      <env name="AWS_SECRET_KEY" value="minio_secret_key" />
+      <env name="DATABASE_HOST" value="postgres" />
+      <env name="DATABASE_NAME" value="devdb" />
+      <env name="DATABASE_PASSWORD" value="postgres" />
+      <env name="DATABASE_PORT" value="5432" />
+      <env name="DATABASE_USER" value="postgres" />
+      <env name="DISCOVERY_HOST" value="gameservice" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="org.readutf.lobby.Lobby" />
+    <module name="game-service.nodes.lobby.main" />
+    <target name="eclipse-temurin:23-jdk-alpine2" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="org.readutf.lobby.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
