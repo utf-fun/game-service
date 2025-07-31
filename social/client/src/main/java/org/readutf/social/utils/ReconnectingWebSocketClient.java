@@ -88,7 +88,7 @@ public class ReconnectingWebSocketClient {
                 LOGGER.info(() -> String.format("WebSocket opened: %s", serverUri));
                 reconnectAttempts.set(0);
                 if (onOpen != null) {
-                    onOpen.onEvent(handshakedata);
+                    onOpen.onEvent(this, handshakedata);
                 }
             }
 
@@ -105,7 +105,7 @@ public class ReconnectingWebSocketClient {
                 LOGGER.info(() -> String.format(
                         "WebSocket closed [%s] code=%d, reason=%s, remote=%s", serverUri, code, reason, remote));
                 if (onClose != null) {
-                    onClose.onEvent(new CloseEvent(code, reason, remote));
+                    onClose.onEvent(this, new CloseEvent(code, reason, remote));
                 }
 
                 if (reconnectOnClose.get() && (code != 1000 || remote)) {
@@ -257,7 +257,7 @@ public class ReconnectingWebSocketClient {
     // Listener interfaces
 
     public interface EventListener {
-        void onEvent(@Nullable Object data);
+        void onEvent(@NotNull WebSocketClient webSocketClient, @Nullable Object data);
     }
 
     public interface MessageListener {

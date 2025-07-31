@@ -1,9 +1,11 @@
 package org.readutf.gameservice.social.session;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -28,6 +30,7 @@ public class SessionManager {
 
     /**
      * Called when a player joins a server.
+     *
      * @param playerId The player's UUID
      * @param serverId The server's UUID
      */
@@ -37,6 +40,7 @@ public class SessionManager {
 
     /**
      * Called when a player leaves a server.
+     *
      * @param serverId The server's UUID
      * @param playerId The player's UUID
      */
@@ -67,6 +71,7 @@ public class SessionManager {
 
     /**
      * Checks if a player is considered online.
+     *
      * @param playerId The player's UUID
      * @return true if online, false otherwise
      */
@@ -90,5 +95,14 @@ public class SessionManager {
                 }
             }
         }
+    }
+
+    public static @Nullable PlayerSession getSession(UUID playerId) {
+        return playerStatusTracker.get(playerId);
+    }
+
+    @NotNull
+    public static List<PlayerSession> getAllSessions() {
+        return List.copyOf(playerStatusTracker.values());
     }
 }
