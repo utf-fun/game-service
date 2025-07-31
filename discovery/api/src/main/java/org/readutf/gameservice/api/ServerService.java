@@ -1,4 +1,4 @@
-package org.readutf.gameservice;
+package org.readutf.gameservice.api;
 
 import org.readutf.gameservice.common.Server;
 import retrofit2.Call;

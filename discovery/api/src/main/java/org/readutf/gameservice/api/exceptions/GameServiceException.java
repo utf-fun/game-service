@@ -1,4 +1,4 @@
-package org.readutf.gameservice.exceptions;
+package org.readutf.gameservice.api.exceptions;
 
 public class GameServiceException extends Exception {
     public GameServiceException(String message) {

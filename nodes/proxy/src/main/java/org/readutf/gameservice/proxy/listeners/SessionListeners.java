@@ -1,4 +1,4 @@
-package org.readutf.gameservice.listeners;
+package org.readutf.gameservice.proxy.listeners;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;

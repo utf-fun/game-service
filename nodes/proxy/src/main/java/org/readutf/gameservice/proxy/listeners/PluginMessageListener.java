@@ -9,9 +9,9 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.readutf.gameservice.api.GameServiceApi;
+import org.readutf.gameservice.api.exceptions.GameServiceException;
 import org.readutf.gameservice.proxy.DiscoveryProxy;
 import org.readutf.gameservice.common.Server;
-import org.readutf.gameservice.exceptions.GameServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

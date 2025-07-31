@@ -13,7 +13,7 @@ import org.readutf.gameservice.api.GameServiceApi;
 import org.readutf.gameservice.common.Server;
 import org.readutf.gameservice.proxy.listeners.PluginMessageListener;
 import org.readutf.gameservice.proxy.listeners.PreConnectListener;
-import org.readutf.gameservice.listeners.SessionListeners;
+import org.readutf.gameservice.proxy.listeners.SessionListeners;
 import org.readutf.social.SocialClient;
 import org.slf4j.Logger;
 

@@ -13,7 +13,7 @@ repositories {
 subprojects {
     apply(plugin = "java")
 
-    group = rootProject.group
+    group = "${rootProject.group}.${parent?.name ?: ""}"
     version = rootProject.version
 
     java {
