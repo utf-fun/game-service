@@ -1,7 +1,6 @@
-package org.readutf.gameservice.social.status;
+package org.readutf.gameservice.social.session;
 
 import org.jetbrains.annotations.NotNull;
-import org.readutf.social.status.StatusMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,9 +8,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
 
-public class StatusManager {
+public class SessionManager {
 
-    private static final Logger log = LoggerFactory.getLogger(StatusManager.class);
+    private static final Logger log = LoggerFactory.getLogger(SessionManager.class);
 
     private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
 
@@ -21,10 +20,10 @@ public class StatusManager {
     private static final long DISCONNECT_DEBOUNCE = 5_000;
 
     // Tracks player statuses by their UUID
-    private static final @NotNull Map<UUID, PlayerStatus> playerStatusTracker = new ConcurrentHashMap<>();
+    private static final @NotNull Map<UUID, PlayerSession> playerStatusTracker = new ConcurrentHashMap<>();
 
     static {
-        SCHEDULER.scheduleAtFixedRate(StatusManager::clearStalePlayers, 1, 1, TimeUnit.MINUTES);
+        SCHEDULER.scheduleAtFixedRate(SessionManager::clearStalePlayers, 1, 1, TimeUnit.MINUTES);
     }
 
     /**
@@ -33,7 +32,7 @@ public class StatusManager {
      * @param serverId The server's UUID
      */
     public static void onJoin(UUID playerId, UUID serverId) {
-        playerStatusTracker.put(playerId, new PlayerStatus(System.currentTimeMillis(), serverId));
+        playerStatusTracker.put(playerId, new PlayerSession(System.currentTimeMillis(), serverId));
     }
 
     /**
@@ -43,8 +42,8 @@ public class StatusManager {
      */
     public static void onLeave(UUID serverId, UUID playerId) {
         // Get current status or create a new one if not present
-        PlayerStatus status =
-                playerStatusTracker.getOrDefault(playerId, new PlayerStatus(System.currentTimeMillis(), serverId));
+        PlayerSession status =
+                playerStatusTracker.getOrDefault(playerId, new PlayerSession(System.currentTimeMillis(), serverId));
 
         // Ignore if the leave event is for a different server
         if (status.getServerId() != serverId) {
@@ -56,13 +55,23 @@ public class StatusManager {
         status.setLastUpdate(System.currentTimeMillis() + (DISCONNECT_DEBOUNCE));
     }
 
+    public static void serverShutdown(UUID serverId) {
+        synchronized (playerStatusTracker) {
+            for (Map.Entry<UUID, PlayerSession> uuidPlayerStatusEntry : playerStatusTracker.entrySet()) {
+                if (uuidPlayerStatusEntry.getValue().getServerId() == serverId) {
+                    playerStatusTracker.remove(uuidPlayerStatusEntry.getKey());
+                }
+            }
+        }
+    }
+
     /**
      * Checks if a player is considered online.
      * @param playerId The player's UUID
      * @return true if online, false otherwise
      */
     public static boolean isOnline(UUID playerId) {
-        PlayerStatus status = playerStatusTracker.get(playerId);
+        PlayerSession status = playerStatusTracker.get(playerId);
 
         if (status == null) return false;
         // Remove player if offline delay exceeded
@@ -75,7 +84,7 @@ public class StatusManager {
 
     private static void clearStalePlayers() {
         synchronized (playerStatusTracker) {
-            for (Map.Entry<UUID, PlayerStatus> entry : playerStatusTracker.entrySet()) {
+            for (Map.Entry<UUID, PlayerSession> entry : playerStatusTracker.entrySet()) {
                 if (entry.getValue().getLastUpdate() + MAX_OFFLINE_DELAY < System.currentTimeMillis()) {
                     playerStatusTracker.remove(entry.getKey());
                 }

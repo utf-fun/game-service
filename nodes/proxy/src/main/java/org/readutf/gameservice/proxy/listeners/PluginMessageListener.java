@@ -1,4 +1,4 @@
-package org.readutf.gameservice.listeners;
+package org.readutf.gameservice.proxy.listeners;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
@@ -8,8 +8,8 @@ import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.readutf.gameservice.DiscoveryProxy;
-import org.readutf.gameservice.GameServiceApi;
+import org.readutf.gameservice.api.GameServiceApi;
+import org.readutf.gameservice.proxy.DiscoveryProxy;
 import org.readutf.gameservice.common.Server;
 import org.readutf.gameservice.exceptions.GameServiceException;
 import org.slf4j.Logger;

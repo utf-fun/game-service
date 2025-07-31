@@ -1,9 +1,10 @@
-package org.readutf.gameservice;
+package org.readutf.gameservice.api;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.readutf.gameservice.ServerService;
 import org.readutf.gameservice.common.Server;
 import org.readutf.gameservice.exceptions.GameServiceException;
 import retrofit2.Call;

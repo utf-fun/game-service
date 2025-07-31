@@ -1,4 +1,4 @@
-package org.readutf.gameservice;
+package org.readutf.gameservice.proxy;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
@@ -9,9 +9,10 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.readutf.gameservice.api.GameServiceApi;
 import org.readutf.gameservice.common.Server;
-import org.readutf.gameservice.listeners.PluginMessageListener;
-import org.readutf.gameservice.listeners.PreConnectListener;
+import org.readutf.gameservice.proxy.listeners.PluginMessageListener;
+import org.readutf.gameservice.proxy.listeners.PreConnectListener;
 import org.readutf.gameservice.listeners.SessionListeners;
 import org.readutf.social.SocialClient;
 import org.slf4j.Logger;
@@ -35,12 +36,16 @@ public class DiscoveryProxy {
     public DiscoveryProxy(ProxyServer proxy, Logger logger) {
         this.proxy = proxy;
         this.logger = logger;
-        this.gameServiceApi = new GameServiceApi(System.getenv("GAME_SERVICE_URL"));
+        String gameServiceUrl = System.getenv("GAME_SERVICE_URL");
+        String socialServiceHost = System.getenv("SOCIAL_SERVICE_HOST");
+        this.gameServiceApi = new GameServiceApi(gameServiceUrl);
         this.serverCache = new HashMap<>();
         this.serverCounter = new AtomicInteger(0);
-        this.socialClient = new SocialClient(System.getenv("SOCIAL_SERVICE_HOST"));
+        this.socialClient = new SocialClient(socialServiceHost);
 
-        logger.info("DiscoveryProxy initialized with Game Service URL: {}", System.getenv("GAME_SERVICE_URL"));
+        logger.info("DiscoveryProxy initialized: ");
+        logger.info("  * Game Service URL: {}", gameServiceUrl);
+        logger.info("  * Social Service Host: {}", socialServiceHost);
     }
     
     @Subscribe

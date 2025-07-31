@@ -1,23 +1,17 @@
-package org.readutf.gameservice.listeners;
+package org.readutf.gameservice.proxy.listeners;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
-import com.velocitypowered.api.event.player.ServerPreConnectEvent;
-import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.server.RegisteredServer;
-import com.velocitypowered.api.proxy.server.ServerInfo;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
-import org.readutf.gameservice.DiscoveryProxy;
-import org.readutf.gameservice.GameServiceApi;
+import org.readutf.gameservice.api.GameServiceApi;
 import org.readutf.gameservice.common.Server;
 import org.readutf.gameservice.exceptions.GameServiceException;
+import org.readutf.gameservice.proxy.DiscoveryProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class PreConnectListener {
 

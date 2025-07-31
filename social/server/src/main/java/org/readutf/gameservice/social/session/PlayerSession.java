@@ -1,14 +1,14 @@
-package org.readutf.gameservice.social.status;
+package org.readutf.gameservice.social.session;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public final class PlayerStatus {
+public final class PlayerSession {
     private long lastUpdate;
     private @NotNull final UUID serverId;
 
-    public PlayerStatus(long lastUpdate, @NotNull UUID serverId) {
+    public PlayerSession(long lastUpdate, @NotNull UUID serverId) {
         this.lastUpdate = lastUpdate;
         this.serverId = serverId;
     }
