@@ -2,8 +2,7 @@
   <configuration default="false" name="SocialService" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="org.readutf.gameservice.social.SocialService" />
     <module name="game-service.social.server.main" />
-    <projectPathOnTarget name="projectPathOnTarget" value="/app" />
-    <target name="eclipse-temurin:23-jdk-alpine3" />
+    <target name="social service" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="org.readutf.gameservice.social.*" />

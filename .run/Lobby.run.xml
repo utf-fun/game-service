@@ -15,7 +15,7 @@
     </envs>
     <option name="MAIN_CLASS_NAME" value="org.readutf.lobby.Lobby" />
     <module name="game-service.nodes.lobby.main" />
-    <target name="eclipse-temurin:23-jdk-alpine2" />
+    <target name="lobby" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="org.readutf.lobby.*" />

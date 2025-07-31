@@ -5,7 +5,7 @@
     </envs>
     <option name="MAIN_CLASS_NAME" value="org.readutf.gameservice.ServiceStarter" />
     <module name="game-service.discovery.server.main" />
-    <target name="eclipse-temurin:23-jdk-alpine" />
+    <target name="game service" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="org.readutf.gameservice.*" />
