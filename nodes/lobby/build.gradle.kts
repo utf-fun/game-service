@@ -14,6 +14,7 @@ repositories {
     mavenLocal()
     maven { url = uri("https://mvn.utf.lol/releases") }
     maven("https://repo.nexomc.com/releases/")
+    maven { url = uri("https://repo.panda-lang.org/releases") }
 }
 
 dependencies {
@@ -30,6 +31,10 @@ dependencies {
     implementation(libs.postgresql)
 
     implementation(project(":discovery:client"))
+    implementation(project(":social:client"))
+
+    //dev.rollczi:{platform}:3.10.4
+    implementation("dev.rollczi:litecommands-minestom:3.10.4")
 
     implementation(libs.ui.toolkit)
 

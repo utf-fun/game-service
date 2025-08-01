@@ -1,4 +1,4 @@
-package org.readutf.gameservice.social.party;
+package org.readutf.social.party;
 
 import java.util.UUID;
 

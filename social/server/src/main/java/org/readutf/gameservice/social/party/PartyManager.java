@@ -1,8 +1,10 @@
 package org.readutf.gameservice.social.party;
 
 import org.jetbrains.annotations.Nullable;
-import org.readutf.gameservice.social.party.exception.PartyException;
-import org.readutf.social.party.PartyErrorType;
+import org.readutf.social.party.exception.PartyException;
+import org.readutf.social.party.Party;
+import org.readutf.social.party.PartyInvite;
+import org.readutf.social.party.PartyResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +38,7 @@ public class PartyManager {
      */
     public Party createParty(UUID playerId) throws PartyException {
         if (getPartyByPlayer(playerId) != null) {
-            throw new PartyException(PartyErrorType.ALREADY_IN_PARTY);
+            throw new PartyException(PartyResultType.ALREADY_IN_PARTY);
         }
 
         Party party = new Party(UUID.randomUUID(), playerId, Collections.emptyList(), Collections.emptyList(), new AtomicBoolean(false));
@@ -54,66 +56,78 @@ public class PartyManager {
      * @param targetId  a member of the target party
      * @throws PartyException if joining fails due to party status or missing invite
      */
-    public void joinParty(UUID joiningId, UUID targetId) throws PartyException {
+    public Party joinParty(UUID joiningId, UUID targetId) throws PartyException {
         Party partyByPlayer = getPartyByPlayer(joiningId);
         if (partyByPlayer != null) {
-            throw new PartyException(PartyErrorType.ALREADY_IN_PARTY);
+            throw new PartyException(PartyResultType.ALREADY_IN_PARTY);
         }
 
         Party party = getPartyByPlayer(targetId);
         if (party == null) {
-            throw new PartyException(PartyErrorType.PLAYER_NOT_IN_PARTY);
+            throw new PartyException(PartyResultType.PLAYER_NOT_IN_PARTY);
         }
 
         if (party.isOpen()) {
             log.info("Player {} has joined party {}", joiningId, targetId);
             party.members().add(joiningId);
-            return;
+            return party;
         }
 
         @Nullable PartyInvite invite = party.invites().stream()
                 .filter(partyInvite -> partyInvite.target().equals(joiningId))
                 .findFirst().orElse(null);
         if (invite == null) {
-            throw new PartyException(PartyErrorType.NOT_INVITED);
+            throw new PartyException(PartyResultType.NOT_INVITED);
         }
 
         party.invites().remove(invite);
         party.members().add(joiningId);
+        return party;
     }
 
     /**
      * Invites a target player to the party of the joining.
      * The joining must not already be in a party, and the target must not have a pending invite.
      *
-     * @param joining the player issuing the invite
+     * @param joining    the player issuing the invite
      * @param partyOwner the player to invite
      * @throws PartyException if inviting fails due to party status or existing invite
      */
-    public void invitePlayer(UUID joining, UUID partyOwner) throws PartyException {
+    public Party invitePlayer(UUID joining, UUID partyOwner) throws PartyException {
         Party partyByPlayer = getPartyByPlayer(joining);
         if (partyByPlayer != null) {
-            throw new PartyException(PartyErrorType.ALREADY_IN_PARTY);
+            throw new PartyException(PartyResultType.ALREADY_IN_PARTY);
         }
         Party party = getPartyByPlayer(partyOwner);
         if (party == null) {
-            throw new PartyException(PartyErrorType.PLAYER_NOT_IN_PARTY);
+            throw new PartyException(PartyResultType.PLAYER_NOT_IN_PARTY);
         }
 
         if (party.getInvite(joining) != null) {
-            throw new PartyException(PartyErrorType.INVITE_ALREADY_EXISTS);
+            throw new PartyException(PartyResultType.INVITE_ALREADY_EXISTS);
         }
         if (party.isOpen()) {
-            throw new PartyException(PartyErrorType.PARTY_ALREADY_OPEN);
+            throw new PartyException(PartyResultType.PARTY_ALREADY_OPEN);
         }
 
         party.invites().add(new PartyInvite(joining, System.currentTimeMillis()));
+        return party;
     }
 
-    public void setPartyOpen(UUID id, boolean open) throws PartyException {
-        Party partyById = getPartyById(id);
-        if(partyById == null) throw new PartyException(PartyErrorType.PARTY_NOT_FOUND);
+    public Party setPartyOpen(UUID ownerId, boolean open) throws PartyException {
+        Party partyById = getPartyByPlayer(ownerId);
+        if (partyById == null) throw new PartyException(PartyResultType.PARTY_NOT_FOUND);
+        if (partyById.owner() == ownerId) throw new PartyException(PartyResultType.NO_PERMISSION);
         partyById.setOpen(open);
+        return partyById;
+    }
+
+    public Party toggleOpen(UUID ownerId) throws PartyException {
+        Party partyById = getPartyByPlayer(ownerId);
+        if (partyById == null) throw new PartyException(PartyResultType.PARTY_NOT_FOUND);
+        if (partyById.owner() == ownerId) throw new PartyException(PartyResultType.NO_PERMISSION);
+        partyById.setOpen(!partyById.isOpen());
+        return partyById;
     }
 
     /**

@@ -1,8 +1,9 @@
 package org.readutf.gameservice.social.party;
 
 import org.junit.jupiter.api.Test;
-import org.readutf.gameservice.social.party.exception.PartyException;
-import org.readutf.social.party.PartyErrorType;
+import org.readutf.social.party.exception.PartyException;
+import org.readutf.social.party.Party;
+import org.readutf.social.party.PartyResultType;
 
 import java.util.UUID;
 
@@ -58,7 +59,7 @@ public class PartyManagerTest {
 
         PartyException throwable = assertThrows(PartyException.class, () -> partyManager.joinParty(joining, owner));
 
-        assertEquals(PartyErrorType.NOT_INVITED, throwable.getType());
+        assertEquals(PartyResultType.NOT_INVITED, throwable.getType());
     }
 
     @Test
@@ -74,7 +75,7 @@ public class PartyManagerTest {
         partyManager.joinParty(joining, owner);
         PartyException exception = assertThrows(PartyException.class, () -> partyManager.joinParty(joining, owner));
 
-        assertEquals(PartyErrorType.ALREADY_IN_PARTY, exception.getType());
+        assertEquals(PartyResultType.ALREADY_IN_PARTY, exception.getType());
     }
 
     @Test
@@ -85,7 +86,7 @@ public class PartyManagerTest {
 
         PartyException exception = assertThrows(PartyException.class, () -> partyManager.joinParty(UUID.randomUUID(), UUID.randomUUID()));
 
-        assertEquals(PartyErrorType.PLAYER_NOT_IN_PARTY, exception.getType());
+        assertEquals(PartyResultType.PLAYER_NOT_IN_PARTY, exception.getType());
     }
 
     @Test
@@ -112,7 +113,7 @@ public class PartyManagerTest {
         partyManager.invitePlayer(joining, owner);
         PartyException exception = assertThrows(PartyException.class, () -> partyManager.invitePlayer(joining, owner));
 
-        assertEquals(PartyErrorType.INVITE_ALREADY_EXISTS, exception.getType());
+        assertEquals(PartyResultType.INVITE_ALREADY_EXISTS, exception.getType());
     }
 
     @Test
@@ -127,7 +128,7 @@ public class PartyManagerTest {
 
         PartyException exception = assertThrows(PartyException.class, () -> partyManager.invitePlayer(joining, owner));
 
-        assertEquals(PartyErrorType.PARTY_ALREADY_OPEN, exception.getType());
+        assertEquals(PartyResultType.PARTY_ALREADY_OPEN, exception.getType());
     }
 
     @Test
@@ -143,7 +144,7 @@ public class PartyManagerTest {
         PartyException exception = assertThrows(PartyException.class, () ->
                 partyManager.invitePlayer(joining, UUID.randomUUID()));
 
-        assertEquals(PartyErrorType.PLAYER_NOT_IN_PARTY, exception.getType());
+        assertEquals(PartyResultType.PLAYER_NOT_IN_PARTY, exception.getType());
     }
 
     @Test
@@ -160,7 +161,7 @@ public class PartyManagerTest {
         PartyException exception = assertThrows(PartyException.class, () ->
                 partyManager.invitePlayer(joining, owner));
 
-        assertEquals(PartyErrorType.ALREADY_IN_PARTY, exception.getType());
+        assertEquals(PartyResultType.ALREADY_IN_PARTY, exception.getType());
     }
 
     @Test

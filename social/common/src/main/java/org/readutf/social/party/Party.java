@@ -1,4 +1,4 @@
-package org.readutf.gameservice.social.party;
+package org.readutf.social.party;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

@@ -3,6 +3,7 @@ package org.readutf.lobby;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import dev.rollczi.litecommands.minestom.LiteMinestomFactory;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
@@ -24,6 +25,7 @@ import org.readutf.lobby.commands.GamemodeCommand;
 import org.readutf.lobby.listeners.AsyncConfigListener;
 import org.readutf.lobby.listeners.BuildPrevention;
 import org.readutf.lobby.listeners.SpawnListener;
+import org.readutf.social.SocialClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -66,12 +68,16 @@ public class Lobby {
         MinecraftServer.getGlobalEventHandler().addListener(PlayerBlockBreakEvent.class, BuildPrevention.breakPrevention());
         MinecraftServer.getGlobalEventHandler().addListener(PlayerBlockPlaceEvent.class, BuildPrevention.placePrevention());
 
+        SocialClient socialClient = new SocialClient("socialservice");
+
         GameServiceClient client = new GameServiceClient.Builder(new KubernetesResolver())
                 .setCapacitySupplier(() -> MinecraftServer.getConnectionManager().getOnlinePlayers().size() / 500f)
                 .setTags(List.of("lobby", "main-lobby"))
                 .build();
 
-
+        LiteMinestomFactory.builder()
+                .commands(new PartyCommands<Player>(socialClient))
+                .build();
 
         new Thread(() -> {
             client.startBlocking(new InetSocketAddress(System.getenv("DISCOVERY_HOST"), 50052));

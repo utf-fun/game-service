@@ -14,6 +14,7 @@ repositories {
     mavenCentral()
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
     maven { url = uri("https://mvn.utf.lol/releases") }
+    maven { url = uri("https://repo.panda-lang.org/releases") }
 }
 
 dependencies {
